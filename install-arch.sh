@@ -17,7 +17,7 @@ if [[ ! -d /sys/firmware/efi/efivars ]]; then
 fi
 
 if [[ -z "$DISK" || ! -b "$DISK" ]]; then
-  echo "Usage: $0 /dev/sdX | /dev/nvme0n1"
+  echo "Usage: $0 /dev/sdX  |  /dev/nvme0n1"
   exit 1
 fi
 
@@ -39,15 +39,28 @@ sleep 1
 sgdisk -n1:0:+512MiB -t1:ef00 -c1:"EFI"
 sgdisk -n2:0:0       -t2:8309 -c2:"cryptroot"
 sync
-# 🔧 Force kernel rescan
+
+
+# 🔧 Force kernel rescan propre
+echo "[*] Forçage du rescannage du disque..."
+udevadm settle
+partprobe "$DISK" || true
+sleep 2
+# Certains disques NVMe nécessitent un rescan explicite
+echo 1 > /sys/class/block/$(basename "$DISK")/device/rescan 2>/dev/null || true
+sleep 2
+partx -u "$DISK" || true
+udevadm settle
+
+# Boucle de vérification compatible sda/nvme
 for i in {1..5}; do
-  partprobe "$DISK" || true
-  partx -u "$DISK" || true
-  sleep 2
-  if lsblk "$DISK" | grep -q "${DISK}1"; then
+  if lsblk "$DISK" | grep -Eq "${DISK}(p)?1"; then
+    echo "[+] Table de partitions détectée."
     break
   fi
   echo "[!] Partition table not visible yet, retrying ($i/5)..."
+  sleep 2
+  partprobe "$DISK" || true
 done
 
 lsblk "$DISK"
