@@ -7,7 +7,7 @@ find . -type f -name 'index.html*' -delete
 # source ./packages.sh
 
 
-cp -r config/ ~/.config/
+cp -r config/. ~/.config/
 chmod +x ~/.config/scripts/*.sh
 chmod +x ~/.config/waybar/launch.sh
 
