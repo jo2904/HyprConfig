@@ -9,22 +9,35 @@ set -e  # Stoppe le script si une commande échoue
 # ----------------------------------------------------------
 sudo pacman -Syu --noconfirm
 
-# Outils système et utilitaires de base
 sudo pacman -S --noconfirm --needed \
   base-devel \
   git \
-  wget curl \
-  unzip zip \
+  wget \
+  curl \
+  unzip \
+  zip \
   ffmpeg \
-  7zip jq poppler fd ripgrep fzf \
-  zoxide imagemagick \
-  brightnessctl power-profiles-daemon
+  p7zip \
+  jq \
+  poppler \
+  fd \
+  ripgrep \
+  fzf \
+  zoxide \
+  imagemagick \
+  brightnessctl \
+  power-profiles-daemon
 
 # ----------------------------------------------------------
 # 2️⃣  Installation de yay (AUR helper)
 # ----------------------------------------------------------
 rm -rf yay
-sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si
+sudo pacman -S --noconfirm --needed git base-devel
+git clone https://aur.archlinux.org/yay.git
+cd yay
+makepkg -si --noconfirm
+cd ..
+rm -rf yay
 
 # ----------------------------------------------------------
 # 3️⃣  Environnement Hyprland + outils Wayland
@@ -35,94 +48,99 @@ sudo pacman -S --noconfirm --needed \
   kitty \
   yazi \
   nautilus \
-  slurp grim swappy satty \
-  hyprshot hyprsunset \
+  slurp \
+  grim \
+  swappy \
+  satty \
+  hyprshot \
+  hyprsunset \
   hyprpaper \
-  mako rofi \
+  mako \
+  rofi \
   nwg-displays \
   bluetui \
   iwd \
   eza \
-  doxx \
   bluez \
-  bluez-utils \
-  wiremix \
+  bluez-utils
 
-
-yay -S hyprpolkitagent polkit
+# Polkit agent Hyprland
+yay -S --noconfirm --needed hyprpolkitagent polkit
 systemctl --user enable --now hyprpolkitagent.service
 
-sudo systemctl enable bluetooth.service
-sudo systemctl start bluetooth.service
+# Bluetooth
+sudo systemctl enable --now bluetooth.service
 
-# (facultatif) plugin pour yazi
-yay -S --noconfirm yazi-rs-plugins-piper
+# (Facultatif) plugin pour Yazi
+yay -S --noconfirm --needed yazi-rs-plugins-piper
 
 # ----------------------------------------------------------
 # 4️⃣  Composants complémentaires Hyprland
 # ----------------------------------------------------------
-yay -S --noconfirm \
+yay -S --noconfirm --needed \
   waybar \
-  hypridle hyprlock \
+  hypridle \
+  hyprlock \
   playerctl \
   xdg-desktop-portal-hyprland \
   wlogout
+
 # ----------------------------------------------------------
 # 5️⃣  Audio & affichage
 # ----------------------------------------------------------
-yay -S --noconfirm pipewire pipewire-pulse pavucontrol
+sudo pacman -S --noconfirm --needed pipewire pipewire-pulse pavucontrol
 systemctl --user enable --now pipewire.service pipewire-pulse.service
 
 # ----------------------------------------------------------
-# 6️⃣  Pilotes graphiques
-# ⚠️  Adapter selon ta carte : nvidia / amd / intel
+# 6️⃣  Pilotes graphiques (à adapter)
 # ----------------------------------------------------------
 # Exemple NVIDIA :
-# sudo pacman -S --noconfirm nvidia nvidia-utils
-# yay -S --noconfirm displaylink
+# sudo pacman -S --noconfirm --needed nvidia nvidia-utils
+# yay -S --noconfirm --needed displaylink
 
 # ----------------------------------------------------------
 # 7️⃣  Applications utilisateur
 # ----------------------------------------------------------
-yay -S --noconfirm \
+yay -S --noconfirm --needed \
   zen-browser-bin \
   visual-studio-code-bin \
   nextcloud-client \
   spotify \
   onlyoffice-bin \
   tailscale \
-  unp btop \
+  unp \
+  btop \
   gazelle-tui
 
 # ----------------------------------------------------------
 # 8️⃣  Polices & apparence
 # ----------------------------------------------------------
-sudo pacman -S --noconfirm ttf-font-awesome
-sudo pacman -S ttf-jetbrains-mono-nerd
-
+sudo pacman -S --noconfirm --needed \
+  ttf-font-awesome \
+  ttf-jetbrains-mono-nerd
 
 # ----------------------------------------------------------
 # 9️⃣  Gestionnaire d’affichage (SDDM)
 # ----------------------------------------------------------
-sudo pacman -S --noconfirm sddm
+sudo pacman -S --noconfirm --needed sddm
+sudo systemctl enable --now sddm.service
 
 # ----------------------------------------------------------
-# 1️⃣1️⃣  Shell Zsh
+# 🔟  Shell Zsh
 # ----------------------------------------------------------
-yay -S --noconfirm zsh
+yay -S --noconfirm --needed zsh
 chsh -s "$(which zsh)"
 
 # ----------------------------------------------------------
-# 1️⃣2️⃣  Services réseau
+# 1️⃣1️⃣  Services réseau
 # ----------------------------------------------------------
 sudo systemctl enable --now tailscaled.service
 
 # ----------------------------------------------------------
 # ✅  Finalisation
 # ----------------------------------------------------------
-dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP || true
 
 echo
 echo "✅ Installation terminée avec succès !"
-echo "💡 Redémarre ton système et connecte-toi sur Hyprland via SDDM."
 echo
