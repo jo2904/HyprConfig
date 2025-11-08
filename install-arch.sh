@@ -18,21 +18,21 @@ fi
 read -rp "⚠️ Le disque $DISK sera ENTIEREMENT effacé. Taper 'OUI' pour confirmer : " OK
 [[ "$OK" == "OUI" ]] || exit 1
 
-echo "[*] Partitionnement GPT (UEFI + LUKS + Btrfs)…"
+# ---------- Partitionnement ----------
+echo "[*] Partitionnement GPT…"
+swapoff -a || true
+umount -R /mnt 2>/dev/null || true
+vgchange -an || true
+cryptsetup close cryptroot 2>/dev/null || true
 wipefs -af "$DISK"
 sgdisk -Zo "$DISK"
-sgdisk -n1:0:+512MiB -t1:ef00 -c1:"EFI"
-sgdisk -n2:0:0       -t2:8309 -c2:"cryptroot"
-partprobe "$DISK"
 sleep 2
 
-if [[ "$DISK" == *"nvme"* ]]; then
-  EFI="${DISK}p1"
-  CRYPT="${DISK}p2"
-else
-  EFI="${DISK}1"
-  CRYPT="${DISK}2"
-fi
+sgdisk -n1:0:+512MiB -t1:ef00 -c1:"EFI"
+sgdisk -n2:0:0       -t2:8309 -c2:"cryptroot"
+sync
+partprobe "$DISK"
+sleep 2
 
 cryptsetup luksFormat --type luks2 "$CRYPT"
 cryptsetup open "$CRYPT" cryptroot
