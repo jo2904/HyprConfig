@@ -39,19 +39,19 @@ sleep 1
 sgdisk -n1:0:+512MiB -t1:ef00 -c1:"EFI"
 sgdisk -n2:0:0       -t2:8309 -c2:"cryptroot"
 sync
-partprobe "$DISK" || true
-partx -u "$DISK" || true
-sleep 2
-
-if [[ "$DISK" == *"nvme"* ]]; then
-  EFI="${DISK}p1"
-  CRYPT="${DISK}p2"
-else
-  EFI="${DISK}1"
-  CRYPT="${DISK}2"
-fi
+# 🔧 Force kernel rescan
+for i in {1..5}; do
+  partprobe "$DISK" || true
+  partx -u "$DISK" || true
+  sleep 2
+  if lsblk "$DISK" | grep -q "${DISK}1"; then
+    break
+  fi
+  echo "[!] Partition table not visible yet, retrying ($i/5)..."
+done
 
 lsblk "$DISK"
+
 read -rp "Vérifie ci-dessus que ${EFI} et ${CRYPT} existent, puis ENTER pour continuer"
 
 # --- Chiffrement ---
