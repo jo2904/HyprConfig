@@ -167,10 +167,6 @@ mkinitcpio -P
 
 # --- Utilisateur ---
 useradd -m -G wheel -s $SHELL_BIN $USERNAME
-echo "[*] Définis un mot de passe root :"
-passwd
-echo "[*] Définis un mot de passe pour $USERNAME :"
-passwd $USERNAME
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 systemctl enable NetworkManager
 
@@ -230,10 +226,19 @@ EOF
 
 CHROOT
 
+# Sortie du heredoc => ici tu as repris la main
+echo "[*] Définis un mot de passe root :"
+arch-chroot /mnt passwd
+echo "[*] Définis un mot de passe pour $USERNAME :"
+arch-chroot /mnt passwd "$USERNAME"
+
 # Injection de la vraie UUID
 sed -i "s/@@CRYPT_UUID@@/${crypt_uuid}/g" /mnt/boot/loader/entries/arch.conf
 sed -i "s/@@CRYPT_UUID@@/${crypt_uuid}/g" /mnt/boot/loader/entries/arch-fallback.conf
 
 echo "✅ Installation terminée (LUKS + Btrfs + systemd-boot)"
-echo "➡️  Tu peux maintenant copier ton dossier 'config' ou faire un git clone dans /mnt/home/${USERNAME}/"
-echo "Ensuite : umount -R /mnt && swapoff -a && reboot"
+echo "[*] Nettoyage..."
+arch-chroot /mnt swapoff -a || true
+umount -R /mnt
+cryptsetup close cryptroot
+echo "✅ Prêt à redémarrer !"
