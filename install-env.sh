@@ -6,7 +6,7 @@ TEMPDir='/home/jo/'
 set -eE
 find . -type f -name 'index.html*' -delete
 
-#./packages.sh
+#sudo ./packages.sh
 
 cp -r config/. $TEMPDir/.config/
 chmod +x $TEMPDir/.config/scripts/*.sh
@@ -18,7 +18,7 @@ source ./defaultApp.sh
 
 echo "source $TEMPDir/.config/zsh/zshrc.sh" >> ~/.zshrc
 
-./theme-sddm.sh
+sudo ./theme-sddm.sh
 
 mkdir -p $TEMPDir/divers
 
