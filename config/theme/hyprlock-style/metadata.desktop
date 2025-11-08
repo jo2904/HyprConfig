@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Hyprlock Style
+Comment=Minimal Hyprlock-inspired theme for SDDM
+Type=Service
+X-KDE-PluginInfo-Author=jo
+X-KDE-PluginInfo-Email=
+X-KDE-PluginInfo-Name=hyprlock-style
+X-KDE-PluginInfo-Version=1.0
+X-KDE-PluginInfo-License=MIT
+X-KDE-PluginInfo-Website=
+X-KDE-PluginInfo-Category=SDDM Theme
+X-KDE-PluginInfo-EnabledByDefault=true

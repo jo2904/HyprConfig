@@ -1,0 +1,187 @@
+{
+  "reload_style_on_change": true,
+  "layer": "top",
+  "position": "top",
+  "spacing": 0,
+  "height": 28,
+  "modules-left": ["hyprland/workspaces"],
+  "modules-center": ["clock"],
+  "modules-right": [
+    "group/tray-expander",
+    "bluetooth",
+    "network",
+    "group/pulseaudio",
+    "group/battery"
+  ],
+
+  "clock": {
+    "format": "{:%H:%M}",
+    "format-alt": "{:%A, %d %B %Y  |  %H:%M}",
+    "tooltip": true,
+    "tooltip-format": "<span size='9pt' font='monospace'>{calendar}</span>",
+    "on-click-right": "xdg-open https://trystop.eu/apps/calendar/dayGridMonth/now",
+
+    "calendar": {
+      "mode": "month",
+      "weeks-pos": "left",
+      "on-scroll": 1,
+      "format": {
+        "months": "<b>{}</b>",
+        "weekdays": "{}",
+        "days": "{}",
+        "weeks": "S{}",
+        "today": "<b><u>{}</u></b>"
+      }
+    }
+  },
+
+  "network": {
+    "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
+    "format": "{icon}",
+    "format-wifi": "{icon}",
+    "format-ethernet": "󰀂",
+    "format-disconnected": "󰖪",
+    "tooltip-format-wifi": "{essid} ({frequency} GHz)\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
+    "tooltip-format-ethernet": "⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
+    "tooltip-format-disconnected": "Disconnected",
+    "interval": 3,
+    "spacing": 1,
+    "on-click": "kitty --class Gazelle gazelle"
+  },
+
+  "group/battery": {
+    "orientation": "horizontal",
+    "modules": ["battery", "power-profiles-daemon"],
+    "drawer": {
+      "transition-left-to-right": true
+    }
+  },
+
+  "battery": {
+    "bat": "BAT0",
+    "adapter": "AC",
+    "format": "{icon} {capacity}%",
+    "format-discharging": "{icon} {capacity}%",
+    "format-charging": "{icon} {capacity}%",
+    "format-plugged": "",
+    "format-icons": {
+      "charging": ["󰢜", "󰂆", "󰂇", "󰂈", "󰢝", "󰂉", "󰢞", "󰂊", "󰂋", "󰂅"],
+      "default": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
+    },
+    "format-full": "󰂅",
+    "format-time": "{H} hr {M} min",
+    "interval": 5,
+    "tooltip-format": "{capacity}% ({time})",
+    "tooltip-format-charging": "Charging: {capacity}% ({time})",
+    "states": {
+      "warning": 20,
+      "critical": 10
+    },
+    "events": {
+      "on-discharging-warning": "notify-send 'Low Battery' '{capacity}% battery remaining'",
+      "on-discharging-critical": "notify-send 'Low Battery' '{capacity}% battery remaining' -u critical",
+      "on-charging-100": "notify-send 'Battery full' 'Battery is at {capacity}%'"
+    }
+  },
+
+  "power-profiles-daemon": {
+    "format": "{icon}",
+    "tooltip-format": "Power profile: {profile}\nDriver: {driver}",
+    "tooltip": true,
+    "format-icons": {
+      "default": "",
+      "performance": "",
+      "balanced": "",
+      "power-saver": ""
+    }
+  },
+
+  "bluetooth": {
+    "format": "",
+    "format-disabled": "󰂲",
+    "format-connected": "",
+    "format-on": "󰂯",
+    "format-off": "󰂲",
+    "tooltip-format": "Devices connected: {num_connections}",
+    "on-click": "kitty --class floating bluetui"
+  },
+
+  "group/pulseaudio": {
+    "orientation": "horizontal",
+    "modules": ["pulseaudio#output", "pulseaudio#input", "custom/mixer"],
+    "drawer": {
+      "transition-left-to-right": true
+    }
+  },
+
+  /*-------------------
+		output device
+	-------------------*/
+
+  "pulseaudio#output": {
+    "format": "{icon} {volume}%",
+    "format-muted": "{icon}",
+
+    "format-icons": {
+      "default": ["󰕿", "󰖀", "󰕾"],
+      "default-muted": "󰝟",
+      "headphone": "󰋋",
+      "headphone-muted": "󰟎",
+      "headset": "󰋎",
+      "headset-muted": "󰋐"
+    },
+
+    "on-click": "~/.config/waybar/volume.sh output mute",
+
+    "on-scroll-up": "~/.config/waybar/volume.sh output raise",
+    "on-scroll-down": "~/.config/waybar/volume.sh output lower",
+
+    "tooltip-format": "Output Device: {desc}"
+  },
+
+  /*----------------
+		microphone
+	----------------*/
+
+  "pulseaudio#input": {
+    "format": "{format_source}",
+
+    "format-source": "󰍬 {volume}%",
+    "format-source-muted": "󰍭",
+
+    "on-click": "~/.config/waybar/volume.sh input mute",
+
+    "on-scroll-up": "~/.config/waybar/volume.sh input raise",
+    "on-scroll-down": "~/.config/waybar/volume.sh input lower",
+
+    "tooltip-format": "Input Device: {desc}"
+  },
+
+  /*-------------------
+    mixer icon
+  -------------------*/
+  "custom/mixer": {
+    "format": "󰒓", // tu peux changer l’icône (celle-ci est souvent utilisée pour le mixage)
+    "tooltip": "Ouvrir le mixeur audio (Wiremix)",
+    "on-click": "kitty --class floating wiremix"
+  },
+
+  "group/tray-expander": {
+    "orientation": "inherit",
+    "drawer": {
+      "transition-duration": 600,
+      "children-class": "tray-group-item"
+    },
+    "modules": ["custom/expand-icon", "tray"]
+  },
+
+  "custom/expand-icon": {
+    "format": " ",
+    "tooltip": false
+  },
+
+  "tray": {
+    // "icon-size": 12
+    // "spacing": 12
+  }
+}
