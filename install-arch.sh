@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# arch-auto-btrfs.sh — Arch install automatisée (LUKS + Btrfs + swapfile + systemd-boot + user jo)
+# arch-auto-btrfs.sh — Installation Arch automatisée (LUKS2 + Btrfs + Swapfile + systemd-boot + user jo)
 set -euo pipefail
 
 DISK="${1:-}"
@@ -10,27 +10,29 @@ LOCALE="fr_FR.UTF-8"
 KEYMAP="fr"
 SHELL_BIN="/bin/zsh"
 
-# --- prérequis ---
+# --- Vérifications ---
 if [[ ! -d /sys/firmware/efi/efivars ]]; then
-  echo "❌ Ce script nécessite un boot UEFI (systemd-boot). Redémarre l'ISO en mode UEFI."
+  echo "❌ Ce script requiert un boot UEFI (systemd-boot ne marche pas en BIOS)."
   exit 1
 fi
 
 if [[ -z "$DISK" || ! -b "$DISK" ]]; then
-  echo "Usage: $0 /dev/sdX|/dev/nvme0n1"
+  echo "Usage: $0 /dev/sdX | /dev/nvme0n1"
   exit 1
 fi
 
 read -rp "⚠️ Le disque $DISK sera ENTIEREMENT effacé. Taper 'OUI' pour confirmer : " OK
 [[ "$OK" == "OUI" ]] || exit 1
 
-# --- nettoyage pour éviter 'unable to inform the kernel' ---
+# --- Nettoyage ---
+echo "[*] Préparation du disque..."
 swapoff -a || true
 umount -R /mnt 2>/dev/null || true
 cryptsetup close cryptroot 2>/dev/null || true
 vgchange -an 2>/dev/null || true
 
-echo "[*] Partitionnement GPT (UEFI + LUKS + Btrfs)…"
+# --- Partitionnement ---
+echo "[*] Partitionnement GPT (EFI + LUKS)..."
 wipefs -af "$DISK"
 sgdisk -Zo "$DISK"
 sleep 1
@@ -49,16 +51,19 @@ else
   CRYPT="${DISK}2"
 fi
 
-# --- chiffrement + FS ---
-echo "[*] Chiffrement LUKS…"
+lsblk "$DISK"
+read -rp "Vérifie ci-dessus que ${EFI} et ${CRYPT} existent, puis ENTER pour continuer"
+
+# --- Chiffrement ---
+echo "[*] Chiffrement LUKS2..."
 cryptsetup luksFormat --type luks2 "$CRYPT"
 cryptsetup open "$CRYPT" cryptroot
 
-echo "[*] Formatage partitions…"
+# --- Systèmes de fichiers ---
 mkfs.fat -F32 "$EFI"
 mkfs.btrfs -L archsys /dev/mapper/cryptroot
 
-# --- subvolumes ---
+# --- Subvolumes ---
 mount /dev/mapper/cryptroot /mnt
 btrfs subvolume create /mnt/@
 btrfs subvolume create /mnt/@home
@@ -66,15 +71,15 @@ btrfs subvolume create /mnt/@swap
 btrfs subvolume create /mnt/@snapshots
 umount /mnt
 
-# --- montage principal ---
+# --- Montage principal ---
 mount -o noatime,ssd,compress=zstd,space_cache=v2,subvol=@ /dev/mapper/cryptroot /mnt
 mkdir -p /mnt/{boot,home,.snapshots,swap}
 mount -o noatime,ssd,compress=zstd,space_cache=v2,subvol=@home /dev/mapper/cryptroot /mnt/home
 mount -o noatime,ssd,compress=zstd,space_cache=v2,subvol=@snapshots /dev/mapper/cryptroot /mnt/.snapshots
 mount "$EFI" /mnt/boot
 
-# --- base system ---
-echo "[*] Installation du système de base…"
+# --- Installation du système de base ---
+echo "[*] Installation des paquets de base..."
 pacman -Sy --noconfirm reflector
 reflector --country France,Germany --protocol https --latest 10 --sort rate --save /etc/pacman.d/mirrorlist
 
@@ -85,20 +90,20 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 crypt_uuid=$(blkid -s UUID -o value "$CRYPT")
 
-# --- config chroot ---
+# --- Configuration dans le chroot ---
 arch-chroot /mnt /bin/bash <<'CHROOT'
 set -euo pipefail
 
-# Variables passées via environnement parent non disponibles ici → redéfinir
+# Variables internes
 HOSTNAME="archlinux"
 USERNAME="jo"
 TZONE="Europe/Paris"
 LOCALE="fr_FR.UTF-8"
 KEYMAP="fr"
 SHELL_BIN="/bin/zsh"
-# Récupérer l'UUID du device LUKS (injeté dans loader après chroot via env)
 CRYPT_UUID_PLACEHOLDER="@@CRYPT_UUID@@"
 
+# --- Localisation ---
 ln -sf /usr/share/zoneinfo/$TZONE /etc/localtime
 hwclock --systohc
 
@@ -114,81 +119,79 @@ cat >/etc/hosts <<EOF
 127.0.1.1 $HOSTNAME.localdomain $HOSTNAME
 EOF
 
-# mkinitcpio (encrypt + resume)
+# --- mkinitcpio ---
 sed -i 's/^HOOKS=.*/HOOKS=(base udev autodetect modconf kms keyboard keymap consolefont block encrypt filesystems resume fsck)/' /etc/mkinitcpio.conf
 mkinitcpio -P
 
-# Utilisateur
+# --- Utilisateur ---
 useradd -m -G wheel -s $SHELL_BIN $USERNAME
-echo "[*] Mot de passe root :";  passwd
-echo "[*] Mot de passe $USERNAME :"; passwd $USERNAME
+echo "[*] Définis un mot de passe root :"
+passwd
+echo "[*] Définis un mot de passe pour $USERNAME :"
+passwd $USERNAME
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 systemctl enable NetworkManager
 
-# --- swapfile Btrfs = RAM + 2 GiB ---
-mem_kb=\$(grep MemTotal /proc/meminfo | awk '{print \$2}')
-mem_mib=\$(( (mem_kb + 1023) / 1024 ))
-swap_mib=\$(( mem_mib + 2048 ))
+# --- Swapfile Btrfs (RAM + 2 GiB) ---
+mem_kb=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+mem_mib=$(( (mem_kb + 1023) / 1024 ))
+swap_mib=$(( mem_mib + 2048 ))
 SWAPFILE=/swap/swapfile
 mkdir -p /swap
-# crée un swapfile compatible Btrfs (no_cow, préalloué)
-btrfs filesystem mkswapfile --size "\${swap_mib}M" "\$SWAPFILE"
-chmod 600 "\$SWAPFILE"
-mkswap "\$SWAPFILE"
-swapon "\$SWAPFILE"
-echo "\$SWAPFILE none swap defaults 0 0" >> /etc/fstab
+btrfs filesystem mkswapfile --size "${swap_mib}M" "$SWAPFILE"
+chmod 600 "$SWAPFILE"
+mkswap "$SWAPFILE"
+swapon "$SWAPFILE"
+echo "$SWAPFILE none swap defaults 0 0" >> /etc/fstab
 
 # --- systemd-boot ---
 bootctl --path=/boot install
 
-# Microcode CPU
-cpu_vendor=\$(LC_ALL=C lscpu | awk -F: '/Vendor ID/{gsub(/^[ \t]+/,"",\$2); print \$2}')
+# --- Microcode CPU ---
+cpu_vendor=$(LC_ALL=C lscpu | awk -F: '/Vendor ID/{gsub(/^[ \t]+/,"",$2); print $2}')
 ucode_initrd=""
-if [[ "\$cpu_vendor" == "GenuineIntel" ]]; then
+if [[ "$cpu_vendor" == "GenuineIntel" ]]; then
   pacman -S --noconfirm --needed intel-ucode
   ucode_initrd="initrd  /intel-ucode.img"
-elif [[ "\$cpu_vendor" == "AuthenticAMD" ]]; then
+elif [[ "$cpu_vendor" == "AuthenticAMD" ]]; then
   pacman -S --noconfirm --needed amd-ucode
   ucode_initrd="initrd  /amd-ucode.img"
 fi
 
-# Calcul resume_offset pour hibernation sur fichier
-# Nécessaire avec un swapfile (le noyau doit connaître l'offset physique)
-offset=\$(filefrag -v "\$SWAPFILE" | awk '\$1==\"0:\" {gsub(/\\./,\"\"); print \$4}')
-: "\${offset:=0}"  # fallback 0 si parsing diffère
-resume_opts="resume=\$SWAPFILE resume_offset=\$offset"
+# --- Resume offset pour hibernation ---
+offset=$(filefrag -v "$SWAPFILE" | awk '$1=="0:" {gsub(/\./,""); print $4}')
+: "${offset:=0}"
+resume_opts="resume=$SWAPFILE resume_offset=$offset"
 
-# Entrées loader
+# --- Config bootloader ---
 cat >/boot/loader/loader.conf <<EOF
 default arch.conf
 timeout 3
 editor no
 EOF
 
-# Entrée standard
 cat >/boot/loader/entries/arch.conf <<EOF
 title   Arch Linux (Btrfs)
 linux   /vmlinuz-linux
-\$ucode_initrd
+$ucode_initrd
 initrd  /initramfs-linux.img
-options cryptdevice=UUID=\$CRYPT_UUID_PLACEHOLDER:cryptroot root=/dev/mapper/cryptroot rootflags=subvol=@ \$resume_opts rw
+options cryptdevice=UUID=$CRYPT_UUID_PLACEHOLDER:cryptroot root=/dev/mapper/cryptroot rootflags=subvol=@ $resume_opts rw
 EOF
 
-# Entrée fallback
 cat >/boot/loader/entries/arch-fallback.conf <<EOF
 title   Arch Linux (fallback)
 linux   /vmlinuz-linux
-\$ucode_initrd
+$ucode_initrd
 initrd  /initramfs-linux-fallback.img
-options cryptdevice=UUID=\$CRYPT_UUID_PLACEHOLDER:cryptroot root=/dev/mapper/cryptroot rootflags=subvol=@ \$resume_opts rw
+options cryptdevice=UUID=$CRYPT_UUID_PLACEHOLDER:cryptroot root=/dev/mapper/cryptroot rootflags=subvol=@ $resume_opts rw
 EOF
 
 CHROOT
 
-# injecter la vraie UUID LUKS dans les entrées systemd-boot créées en chroot
+# Injection de la vraie UUID
 sed -i "s/@@CRYPT_UUID@@/${crypt_uuid}/g" /mnt/boot/loader/entries/arch.conf
 sed -i "s/@@CRYPT_UUID@@/${crypt_uuid}/g" /mnt/boot/loader/entries/arch-fallback.conf
 
 echo "✅ Installation terminée (LUKS + Btrfs + systemd-boot)"
-echo "➡️  Tu peux maintenant copier/installer ta config : /mnt/home/${USERNAME}/"
+echo "➡️  Tu peux maintenant copier ton dossier 'config' ou faire un git clone dans /mnt/home/${USERNAME}/"
 echo "Ensuite : umount -R /mnt && swapoff -a && reboot"
