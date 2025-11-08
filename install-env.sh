@@ -4,7 +4,7 @@
 set -eE
 find . -type f -name 'index.html*' -delete
 
-# source ./packages.sh
+#./packages.sh
 
 
 cp -r config/. ~/.config/
@@ -17,7 +17,7 @@ source ./defaultApp.sh
 
 echo "source $HOME/.config/zsh/zshrc.sh" >> ~/.zshrc
 
-source ./theme-sddm.sh
+./theme-sddm.sh
 
 mkdir -p $HOME/divers
 
