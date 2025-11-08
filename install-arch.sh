@@ -33,39 +33,68 @@ vgchange -an 2>/dev/null || true
 
 # --- Partitionnement ---
 echo "[*] Partitionnement GPT (EFI + LUKS)..."
-wipefs -af "$DISK"
-sgdisk -Zo "$DISK"
+# Résoudre /dev/disk/by-id/... vers /dev/sdX|/dev/nvme0n1
+KDISK="$(readlink -f -- "$DISK")"
+BASE="$(basename "$KDISK")"
+
+wipefs -af "$KDISK"
+sgdisk -Zo "$KDISK"
 sleep 1
-sgdisk -n1:0:+512MiB -t1:ef00 -c1:"EFI"
-sgdisk -n2:0:0       -t2:8309 -c2:"cryptroot"
+sgdisk -n1:0:+512MiB -t1:ef00 -c1:"EFI"        "$KDISK"
+sgdisk -n2:0:0       -t2:8309 -c2:"cryptroot"  "$KDISK"
 sync
 
+# Définir proprement les chemins attendus
+SEP=""
+[[ "$BASE" =~ ^nvme ]] && SEP="p"
+# Par nom noyau
+EFI_DEV="/dev/${BASE}${SEP}1"
+CRYPT_DEV="/dev/${BASE}${SEP}2"
+# Par étiquette GPT (plus fiable, udev crée ces liens)
+EFI="/dev/disk/by-partlabel/EFI"
+CRYPT="/dev/disk/by-partlabel/cryptroot"
 
-# 🔧 Force kernel rescan propre
+# 🔧 Forçage du rescannage du disque
 echo "[*] Forçage du rescannage du disque..."
 udevadm settle
-partprobe "$DISK" || true
-sleep 2
-# Certains disques NVMe nécessitent un rescan explicite
-echo 1 > /sys/class/block/$(basename "$DISK")/device/rescan 2>/dev/null || true
-sleep 2
-partx -u "$DISK" || true
+partprobe "$KDISK" || true
+sleep 1
+if [[ -e "/sys/class/block/$BASE/device/rescan" ]]; then
+  echo 1 > "/sys/class/block/$BASE/device/rescan" 2>/dev/null || true
+fi
+sleep 1
+partx -u "$KDISK" || true
+blockdev --rereadpt "$KDISK" 2>/dev/null || true
 udevadm settle
 
-# Boucle de vérification compatible sda/nvme
-for i in {1..5}; do
-  if lsblk "$DISK" | grep -Eq "${DISK}(p)?1"; then
-    echo "[+] Table de partitions détectée."
-    break
+# ⏳ Attendre que les partitions existent (par nom ou par partlabel)
+ok=false
+for i in {1..10}; do
+  if [[ -b "$EFI_DEV" && -b "$CRYPT_DEV" ]]; then
+    ok=true; break
   fi
-  echo "[!] Partition table not visible yet, retrying ($i/5)..."
-  sleep 2
-  partprobe "$DISK" || true
+  if [[ -e "$EFI" && -e "$CRYPT" ]]; then
+    ok=true; break
+  fi
+  echo "[!] Partitions non visibles, tentative ($i/10)..."
+  sleep 1
+  udevadm settle
+  partprobe "$KDISK" || true
 done
 
-lsblk "$DISK"
+if ! $ok; then
+  echo "❌ Impossible de détecter les partitions après création."
+  echo "--- sgdisk -p ---"
+  sgdisk -p "$KDISK" || true
+  echo "-----------------"
+  exit 1
+fi
 
-read -rp "Vérifie ci-dessus que ${EFI} et ${CRYPT} existent, puis ENTER pour continuer"
+# Affichage clair
+lsblk -o NAME,PATH,SIZE,TYPE,FSTYPE "$KDISK"
+
+read -rp "Vérifie que $EFI (ou $EFI_DEV) et $CRYPT (ou $CRYPT_DEV) existent, puis ENTER pour continuer"
+
 
 # --- Chiffrement ---
 echo "[*] Chiffrement LUKS2..."
