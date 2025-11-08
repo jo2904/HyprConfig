@@ -1,27 +1,26 @@
 #!/bin/bash
 
+TEMPDir='/home/jo/'
+
 # Exit immediately if a command exits with a non-zero status
 set -eE
 find . -type f -name 'index.html*' -delete
 
 #./packages.sh
 
+cp -r config/. $TEMPDir/.config/
+chmod +x $TEMPDir/.config/scripts/*.sh
+chmod +x $TEMPDir/.config/waybar/launch.sh
 
-cp -r config/. ~/.config/
-chmod +x ~/.config/scripts/*.sh
-chmod +x ~/.config/waybar/launch.sh
-
-mkdir -p $HOME/Images/screenshot
+mkdir -p $TEMPDir/Images/screenshot
 
 source ./defaultApp.sh
 
-echo "source $HOME/.config/zsh/zshrc.sh" >> ~/.zshrc
+echo "source $TEMPDir/.config/zsh/zshrc.sh" >> ~/.zshrc
 
 ./theme-sddm.sh
 
-mkdir -p $HOME/divers
-
-cp config/nextcloud/nextcloud.cfg $HOME/.config/Nextcloud/nextcloud.cfg
+mkdir -p $TEMPDir/divers
 
 # ----------------------------------------------------------
 # 🔟  Hyprland plugins (via hyprpm)
