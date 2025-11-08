@@ -47,7 +47,7 @@ sudo pacman -S --noconfirm --needed \
   bluez \
   bluez-utils \
   wiremix \
-  wlogout
+
 
 yay -S hyprpolkitagent polkit
 systemctl --user enable --now hyprpolkitagent.service
@@ -65,8 +65,8 @@ yay -S --noconfirm \
   waybar \
   hypridle hyprlock \
   playerctl \
-  xdg-desktop-portal-hyprland
-
+  xdg-desktop-portal-hyprland \
+  wlogout
 # ----------------------------------------------------------
 # 5️⃣  Audio & affichage
 # ----------------------------------------------------------
