@@ -1,0 +1,47 @@
+[plugin]
+prepend_previewers = [
+    { name = "*.docx", run = 'piper -- doxx "$1" --export text' },
+    { name = "*.DOCX", run = 'piper -- doxx "$1" --export text' },
+    { name = "*.doc",  run = 'piper -- doxx "$1" --export text' },
+    { name = "*.DOC",  run = 'piper -- doxx "$1" --export text' },
+]
+
+[opener]
+doxx_view = [
+    { run = 'doxx "$@"', block = true, desc = "View with doxx" }
+]
+
+onlyoffice = [
+    { run = 'onlyoffice-desktopeditors "$@" &', desc = "Open with OnlyOffice", orphan = true }
+]
+
+
+[open]
+prepend_rules = [
+    # Word
+    { name = "*.docx", use = ["doxx_view", "onlyoffice"] },
+    { name = "*.DOCX", use = ["doxx_view", "onlyoffice"] },
+    { name = "*.doc",  use = ["doxx_view" , "onlyoffice"]},
+    { name = "*.DOC",  use = ["doxx_view" , "onlyoffice"]},
+
+    # Excel
+    { name = "*.xls",  use = ["onlyoffice"] },
+    { name = "*.XLS",  use = ["onlyoffice"] },
+    { name = "*.xlsx", use = ["onlyoffice"] },
+    { name = "*.XLSX", use = ["onlyoffice"] },
+
+    # PowerPoint
+    { name = "*.ppt",  use = ["onlyoffice"] },
+    { name = "*.PPT",  use = ["onlyoffice"] },
+    { name = "*.pptx", use = ["onlyoffice"] },
+    { name = "*.PPTX", use = ["onlyoffice"] },
+
+    # OpenDocument
+    { name = "*.odt",  use = ["onlyoffice"] },
+    { name = "*.ODT",  use = ["onlyoffice"] },
+    { name = "*.ods",  use = ["onlyoffice"] },
+    { name = "*.ODS",  use = ["onlyoffice"] },
+    { name = "*.odp",  use = ["onlyoffice"] },
+    { name = "*.ODP",  use = ["onlyoffice"] },
+
+    ]
