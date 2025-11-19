@@ -7,9 +7,9 @@ set -e  # Stoppe le script si une commande échoue
 # ----------------------------------------------------------
 # 1️⃣  Dépendances de base et outils essentiels
 # ----------------------------------------------------------
- pacman -Syu --noconfirm
+ sudo pacman -Syu --noconfirm
 
- pacman -S --noconfirm --needed \
+ sudo pacman -S --noconfirm --needed \
   base-devel \
   git \
   wget \
@@ -27,25 +27,25 @@ set -e  # Stoppe le script si une commande échoue
   imagemagick \
   brightnessctl \
   power-profiles-daemon \
-  nano \ 
-  pciutils \ 
-  usbutils
+  nano
   
 # ----------------------------------------------------------
 # 2️⃣  Installation de yay (AUR helper)
 # ----------------------------------------------------------
 rm -rf yay
- pacman -S --noconfirm --needed git base-devel
+ sudo pacman -S --noconfirm --needed git base-devel
 git clone https://aur.archlinux.org/yay.git
 cd yay
 makepkg -si --noconfirm
 cd ..
 rm -rf yay
 
+yay -S   pciutils  usbutils
+
 # ----------------------------------------------------------
 # 3️⃣  Environnement Hyprland + outils Wayland
 # ----------------------------------------------------------
- pacman -S --noconfirm --needed \
+ sudo pacman -S --noconfirm --needed \
   hyprland \
   uwsm \
   kitty \
@@ -91,7 +91,7 @@ yay -S --noconfirm --needed \
 # ----------------------------------------------------------
 # 5️⃣  Audio & affichage
 # ----------------------------------------------------------
- pacman -S --noconfirm --needed pipewire pipewire-pulse pavucontrol
+ sudo pacman -S --noconfirm --needed pipewire pipewire-pulse pavucontrol
 systemctl --user enable --now pipewire.service pipewire-pulse.service
 
 # ----------------------------------------------------------
@@ -99,7 +99,7 @@ systemctl --user enable --now pipewire.service pipewire-pulse.service
 # ----------------------------------------------------------
 read -p "Installer les pilotes NVIDIA ? (o/N) : " install_nvidia
 if [[ "$install_nvidia" =~ ^[oO]$ ]]; then
-    pacman -S --noconfirm --needed nvidia nvidia-utils
+    sudo pacman -S --noconfirm --needed nvidia nvidia-utils
 fi
 
 read -p "Installer DisplayLink ? (o/N) : " install_displaylink
@@ -109,7 +109,7 @@ fi
 
 read -p "Installer les pilotes NVIDIA ? (o/N) : " install_nvidia
 if [[ "$install_nvidia" =~ ^[oO]$ ]]; then
-    pacman -S --noconfirm --needed nvidia nvidia-utils
+    sudo pacman -S --noconfirm --needed nvidia nvidia-utils
 fi
 
 # ----------------------------------------------------------
@@ -129,7 +129,7 @@ yay -S --noconfirm --needed \
 # ----------------------------------------------------------
 # 8️⃣  Polices & apparence
 # ----------------------------------------------------------
- pacman -S --noconfirm --needed \
+ sudo pacman -S --noconfirm --needed \
   ttf-font-awesome \
   ttf-jetbrains-mono-nerd \
   qt5-declarative \
@@ -138,7 +138,7 @@ yay -S --noconfirm --needed \
 # ----------------------------------------------------------
 # 9️⃣  Gestionnaire d’affichage (SDDM)
 # ----------------------------------------------------------
- pacman -S --noconfirm --needed sddm
+ sudo pacman -S --noconfirm --needed sddm
  systemctl enable --now sddm.service
 
 # ----------------------------------------------------------
