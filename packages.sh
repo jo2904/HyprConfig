@@ -112,12 +112,6 @@ if [[ "$install_nvidia" =~ ^[oO]$ ]]; then
     pacman -S --noconfirm --needed nvidia nvidia-utils
 fi
 
-read -p "Installer StreamController ? (o/N) : " install_streamcontroller
-if [[ "$install_streamcontroller" =~ ^[oO]$ ]]; then
-    yay -S --noconfirm --needed StreamController
-fi
-
-
 # ----------------------------------------------------------
 # 7️⃣  Applications utilisateur
 # ----------------------------------------------------------
