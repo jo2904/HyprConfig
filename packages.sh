@@ -107,11 +107,6 @@ if [[ "$install_displaylink" =~ ^[oO]$ ]]; then
     yay -S --noconfirm --needed displaylink
 fi
 
-read -p "Installer les pilotes NVIDIA ? (o/N) : " install_nvidia
-if [[ "$install_nvidia" =~ ^[oO]$ ]]; then
-    sudo pacman -S --noconfirm --needed nvidia nvidia-utils
-fi
-
 # ----------------------------------------------------------
 # 7️⃣  Applications utilisateur
 # ----------------------------------------------------------
@@ -138,7 +133,7 @@ yay -S --noconfirm --needed \
 # ----------------------------------------------------------
 # 9️⃣  Gestionnaire d’affichage (SDDM)
 # ----------------------------------------------------------
- sudo pacman -S --noconfirm --needed sddm
+ sudo pacman -S --noconfirm --needed sddm qt6-svg qt6-virtualkeyboard qt6-multimedia-ffmpeg
  systemctl enable --now sddm.service
 
 # ----------------------------------------------------------
