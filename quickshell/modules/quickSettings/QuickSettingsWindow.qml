@@ -79,5 +79,12 @@ QsPopupWindow {
         EthernetPage {
             onBackRequested: pageStack.currentIndex = 0
         }
+
+        // ==========================
+        // PAGE 7: POWER PROFILE
+        // ==========================
+        PowerProfilePage {
+            onBackRequested: pageStack.currentIndex = 0
+        }
     }
 }

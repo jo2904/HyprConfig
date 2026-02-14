@@ -208,13 +208,24 @@ Item {
 
             // DND (Do Not Disturb)
             QuickSettingsTile {
-                Layout.columnSpan: BluetoothService.adapter === null ? 2 : 1
                 icon: NotificationService.dndEnabled ? "󰂛" : "󰂚"
                 label: "Do not disturb"
                 subLabel: NotificationService.dndEnabled ? "Enabled" : "Disabled"
                 active: NotificationService.dndEnabled
                 hasDetails: false
                 onToggled: NotificationService.toggleDnd()
+            }
+
+            // POWER PROFILE
+            QuickSettingsTile {
+                visible: BatteryService.hasBattery
+                icon: PowerProfileService.icon
+                label: "Power Profile"
+                subLabel: PowerProfileService.label
+                active: PowerProfileService.currentProfile !== "balanced"
+                hasDetails: true
+                onToggled: PowerProfileService.cycleProfile()
+                onOpenDetails: pageStack.currentIndex = 7
             }
         }
 
