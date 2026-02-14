@@ -1,0 +1,5 @@
+{
+  "output": "AUTO",
+
+  "include": ["~/.config/waybar/config.json"]
+}

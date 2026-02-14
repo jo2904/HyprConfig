@@ -1,0 +1,11 @@
+{
+  "theme": {
+    "name": "tokyonight"
+  },
+  "bar": {
+    "screen": "DVI-I-2"
+  },
+  "nightLight": {
+    "enabled": false
+  }
+}

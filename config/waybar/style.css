@@ -1,38 +1,45 @@
-/* Colors (dracula) */
-@define-color foreground	#f8f8f2;
-@define-color background	rgba(40, 42, 54, 0.5);
-@define-color orange	#ffb86c;
-@define-color gray	#44475a;
+/* ========================================
+   Dracula Color Scheme - Modern GTK CSS
+   ======================================== */
+@define-color foreground #f8f8f2;
+@define-color background rgba(40, 42, 54, 0.5);
+@define-color gray #44475a;
 @define-color black #21222c;
-@define-color red	#ff5555;
-@define-color green	#50fa7b;
-@define-color yellow	#f1fa8c;
-@define-color cyan	#8be9fd;
-@define-color blue	#6272a4;
-@define-color purple	#bd93f9;
-@define-color pink	#ff79c6;
+@define-color red #ff5555;
+@define-color orange #ffb86c;
+@define-color yellow #f1fa8c;
+@define-color green #50fa7b;
+@define-color cyan #8be9fd;
+@define-color blue #6272a4;
+@define-color purple #bd93f9;
+@define-color pink #ff79c6;
 @define-color white #ffffff;
-@define-color brred #ff6e6e;
-@define-color brgreen #69ff94;
-@define-color bryellow #ffffa5;
-@define-color brcyan #a4ffff;
-@define-color brblue #6272a4;
-@define-color brpurple #d6acff;
-@define-color brpink #ff92df;
+@define-color br-red #ff6e6e;
+@define-color br-green #69ff94;
+@define-color br-yellow #ffffa5;
+@define-color br-cyan #a4ffff;
+@define-color br-blue #6272a4;
+@define-color br-purple #d6acff;
+@define-color br-pink #ff92df;
+@define-color arch-blue #89b4fa;
 
-@define-color arch_blue #89b4fa;
+/* Semantic colors */
+@define-color critical @red;
+@define-color warning @yellow;
 
-@define-color workspace_background	@background;
-@define-color workspace_button	@foreground;
-@define-color workspace_active	@black;
-@define-color workspace_active_background	@foreground;
-@define-color workspace_urgent	@white;
-@define-color workspace_urgent_background	@brred;
-@define-color workspace_hover	@black;
-@define-color workspace_hover_background	@blue;
-@define-color critical	@red;
-@define-color warning	@yellow;
+/* Workspace colors */
+@define-color ws-bg @background;
+@define-color ws-text @foreground;
+@define-color ws-active-bg @foreground;
+@define-color ws-active-text @black;
+@define-color ws-urgent-bg @br-red;
+@define-color ws-urgent-text @white;
+@define-color ws-hover-bg @blue;
+@define-color ws-hover-text @black;
 
+/* ========================================
+   Animations
+   ======================================== */
 @keyframes blink {
   to {
     background-color: @white;
@@ -40,44 +47,82 @@
   }
 }
 
-* {
-  border: none;
-  border-radius: 10px;
-  font-family: "monospace";
-  font-size: 14px;
-  min-height: 0;
+@keyframes pulse {
+  to {
+    background-color: @white;
+    color: @black;
+  }
 }
 
+/* ========================================
+   Global Styles
+   ======================================== */
+* {
+  border: none;
+  border-radius: 8px;
+  font-family: "JetBrainsMono Nerd Font", "Fira Code", monospace;
+  font-size: 13px;
+  font-weight: 500;
+  min-height: 0;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ========================================
+   Window
+   ======================================== */
 window#waybar {
-  background: @workspace_background;
+  background: transparent;
   color: @foreground;
 }
 
+/* ========================================
+   Workspaces
+   ======================================== */
 #workspaces {
-  background: @workspace_background;
-  opacity: 1;
+  background: @ws-bg;
+  margin: 1px 2px;
+  padding: 0px 2px;
+  border-radius: 8px;
 }
 
 #workspaces button {
-  padding: 1px 6px; /* <--- Réduit l’espace intérieur (haut/bas, gauche/droite) */
-  margin: 2px 2px; /* <--- Réduit l’espace entre les boutons */
-  border-radius: 3px; /* <--- Réduit la rondeur des coins */
-  min-width: 0; /* <--- Empêche une taille minimale trop grande */
+  padding: 0px 6px;
+  margin: 0 1px;
+  border-radius: 4px;
+  min-width: 0;
   min-height: 0;
+  background: transparent;
+  color: @ws-text;
 }
 
-#workspaces button,
 #workspaces button.persistent {
   background: transparent;
-  color: @workspace_button;
-  transition: none;
+  color: @ws-text;
+  opacity: 0.6;
 }
 
 #workspaces button.active {
-  background: @workspace_active_background;
-  color: @workspace_active;
+  background: @ws-active-bg;
+  color: @ws-active-text;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+#workspaces button.urgent {
+  background: @ws-urgent-bg;
+  color: @ws-urgent-text;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+#workspaces button:hover {
+  background: @ws-hover-bg;
+  color: @ws-hover-text;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* ========================================
+   Modules
+   ======================================== */
 #clock,
 #battery,
 #pulseaudio,
@@ -85,38 +130,117 @@ window#waybar {
 #bluetooth,
 #tray {
   background: @background;
-  opacity: 1;
-  padding: 0px 5px;
-  margin: 2px 0px 2px 5px;
+  padding: 0px 8px;
+  margin: 1px 0 1px 4px;
+  border-radius: 6px;
 }
 
+/* ========================================
+   Clock
+   ======================================== */
+#clock {
+  color: @white;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+#clock:hover {
+  background: @gray;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* ========================================
+   Battery
+   ======================================== */
 #battery {
-  color: @foreground;
-  border-radius: 5px 0px 0px 5px;
+  color: @white;
+  border-radius: 6px;
+}
+
+#battery.charging {
+  color: @white;
 }
 
 #battery.discharging {
-  color: @foreground;
+  color: @white;
 }
 
 #battery.warning:not(.charging) {
+  color: @black;
   background: @warning;
-  animation-name: blink;
-  animation-duration: 0.5s;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
+  animation: blink 1s ease-in-out infinite;
 }
 
 #battery.critical:not(.charging) {
-  background-color: @critical;
-  animation-name: blink;
-  animation-duration: 0.5s;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
+  color: @white;
+  background: @critical;
+  animation: pulse 0.8s ease-in-out infinite;
+  font-weight: 700;
 }
 
-#clock {
-  border-radius: 0px 5px 5px 0px;
+/* ========================================
+   Audio
+   ======================================== */
+#pulseaudio {
+  color: @white;
+}
+
+#pulseaudio.muted {
+  color: @white;
+  opacity: 0.5;
+}
+
+#pulseaudio:hover {
+  background: @gray;
+}
+
+/* ========================================
+   Network
+   ======================================== */
+#network {
+  color: @white;
+}
+
+#network.disconnected {
+  color: @red;
+  opacity: 0.7;
+}
+
+#network:hover {
+  background: @gray;
+}
+
+/* ========================================
+   Bluetooth
+   ======================================== */
+#bluetooth {
+  color: @white;
+}
+
+#bluetooth.disabled {
+  opacity: 0.5;
+}
+
+#bluetooth:hover {
+  background: @gray;
+}
+
+/* ========================================
+   System Tray
+   ======================================== */
+#tray {
+  padding: 0px 6px;
+}
+
+#tray > .passive {
+  opacity: 0.7;
+}
+
+#tray > .active {
+  opacity: 1;
+}
+
+#tray > .needs-attention {
+  color: @red;
+  animation: blink 1s ease-in-out infinite;
 }

@@ -4,6 +4,9 @@
 # ==========================================================
 set -e  # Stoppe le script si une commande échoue
 
+sudo rm /etc/resolv.conf
+sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+
 # ----------------------------------------------------------
 # 1️⃣  Dépendances de base et outils essentiels
 # ----------------------------------------------------------
@@ -65,11 +68,22 @@ yay -S   pciutils  usbutils
   iwd \
   eza \
   bluez \
-  bluez-utils
+  bluez-utils \
+  qt6-base \
+  qt6-declarative \
+  qt6-wayland \
+  qt6-svg \
+  qt6-5compat \
+  qt6-imageformats
+
+# QuickShell
+yay -S --noconfirm --needed quickshell-git
 
 # Polkit agent Hyprland
 yay -S --noconfirm --needed hyprpolkitagent polkit
 systemctl --user enable --now hyprpolkitagent.service
+
+git clone https://github.com/Shanu-Kumawat/quickshell-overview ~/.config/quickshell/overview
 
 # Bluetooth
  systemctl enable --now bluetooth.service
@@ -119,8 +133,8 @@ yay -S --noconfirm --needed \
   tailscale \
   unp \
   btop \
-  gazelle-tui
-
+  gazelle-tui \
+  filezilla
 # ----------------------------------------------------------
 # 8️⃣  Polices & apparence
 # ----------------------------------------------------------
@@ -145,7 +159,8 @@ chsh -s "$(which zsh)"
 # ----------------------------------------------------------
 # 1️⃣1️⃣  Services réseau
 # ----------------------------------------------------------
- systemctl enable --now tailscaled.service
+sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+systemctl enable --now tailscaled.service
 
 
 # hyprpm add

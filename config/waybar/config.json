@@ -1,8 +1,13 @@
 {
-  "reload_style_on_change": true,
   "layer": "top",
+
+  "margin-top": 1,
+  "margin-bottom": 0,
+  "margin-left": 3,
+  "margin-right": 3,
+
+  "reload_style_on_change": true,
   "position": "top",
-  "spacing": 0,
   "height": 28,
   "modules-left": ["hyprland/workspaces"],
   "modules-center": ["clock"],

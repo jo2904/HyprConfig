@@ -100,6 +100,10 @@ main() {
 	local action=$2
 	local value=${3:-$VALUE}
 
+	if ! command -v pactl &>/dev/null || ! pactl info &>/dev/null; then
+		exit 1
+	fi
+
 	! ((value > 0 )) && print-usage
 
 	case $device in

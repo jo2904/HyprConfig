@@ -4,11 +4,9 @@
 current_mode=$(makoctl mode)
 
 if [[ "$current_mode" == "do-not-disturb" ]]; then
-    # Si on est en mode DND, repasser en normal
     makoctl mode normal
-    notify-send "Notifications" "Mode Normal activé"
+    notify-send "Ne pas déranger" "Désactivé" -t 2000
 else
-    # Sinon, passer en mode DND
     makoctl mode do-not-disturb
-    notify-send "Notifications" "Mode Ne pas déranger activé"
+    notify-send "Ne pas déranger" "Activé" -t 2000
 fi

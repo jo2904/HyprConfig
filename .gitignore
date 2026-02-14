@@ -1,0 +1,19 @@
+# Secrets & credentials
+*.pem
+*.key
+*.env
+.env*
+credentials.json
+**/secrets/
+**/.ssh/
+
+# Waybar generated files
+config/waybar/temp.json
+config/waybar/*.backup
+
+# OS & editor
+.DS_Store
+*.swp
+*.swo
+*~
+.vscode/

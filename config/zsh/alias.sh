@@ -242,11 +242,11 @@ mnt-mount() {
     fi
     
     local device="$1"
-    local mount_point="${2:-/mnt/$(basename $device)}"
-    
+    local mount_point="${2:-/mnt/$(basename "$device")}"
+
     # Créer le point de montage si nécessaire
     sudo mkdir -p "$mount_point"
-    
+
     # Montage avec détection automatique du système de fichiers
     sudo mount "$device" "$mount_point" && \
     echo "✅ $device monté sur $mount_point"
@@ -260,7 +260,7 @@ mnt-umount() {
         echo "         mnt-umount /mnt/usb"
         return 1
     fi
-    
+
     sudo umount "$1" && \
     echo "✅ $1 démonté avec succès"
 }
@@ -271,7 +271,7 @@ mnt-force-umount() {
         echo "Usage: mnt-force-umount <DEVICE_OR_MOUNT_POINT>"
         return 1
     fi
-    
+
     echo "⚠️  Démontage forcé de $1..."
     sudo umount -f "$1" 2>/dev/null || sudo umount -l "$1"
     echo "✅ $1 démonté (forcé)"
@@ -285,8 +285,8 @@ mnt-mount-rw() {
     fi
     
     local device="$1"
-    local mount_point="${2:-/mnt/$(basename $device)}"
-    
+    local mount_point="${2:-/mnt/$(basename "$device")}"
+
     sudo mkdir -p "$mount_point"
     sudo mount -o rw,user,exec "$device" "$mount_point" && \
     echo "✅ $device monté en lecture/écriture sur $mount_point"
@@ -300,8 +300,8 @@ mnt-mount-ro() {
     fi
     
     local device="$1"
-    local mount_point="${2:-/mnt/$(basename $device)}"
-    
+    local mount_point="${2:-/mnt/$(basename "$device")}"
+
     sudo mkdir -p "$mount_point"
     sudo mount -o ro "$device" "$mount_point" && \
     echo "✅ $device monté en lecture seule sur $mount_point"
@@ -318,7 +318,7 @@ mnt-eject() {
     local device="$1"
     
     # Démontage de toutes les partitions du périphérique
-    for partition in ${device}*; do
+    for partition in "${device}"*; do
         if mountpoint -q "$partition" 2>/dev/null || mount | grep -q "$partition"; then
             sudo umount "$partition" 2>/dev/null
         fi
@@ -397,16 +397,8 @@ alias ls='eza -lh --group-directories-first --icons=auto'
 alias lsa='ls -a'
 alias lt='eza --tree --level=2 --long --icons --git'
 alias lta='lt -a'
-alias cd="zd"
-zd() {
-  if [ $# -eq 0 ]; then
-    builtin cd ~ && return
-  elif [ -d "$1" ]; then
-    builtin cd "$1"
-  else
-    z "$@" && printf "\U000F17A9 " && pwd || echo "Error: Directory not found"
-  fi
-}
+# Zoxide remplace cd nativement (cd vers dossier connu, cdi pour interactif)
+eval "$(zoxide init zsh --cmd cd)"
 open() {
   xdg-open "$@" >/dev/null 2>&1 &
 }
@@ -431,9 +423,42 @@ iso2sd() {
     lsblk -d -o NAME | grep -E '^sd[a-z]' | awk '{print "/dev/"$1}'
   else
     sudo dd bs=4M status=progress oflag=sync if="$1" of="$2"
-    sudo eject $2
+    sudo eject "$2"
   fi
 }
 
 
-alias usbformat='sudo bash -c "read -p \"Entrer le périphérique (ex: /dev/sdb) à formater : \" dev; read -p \"Entrez un label pour la clé : \" label; echo \"⚠️ Toutes les données sur \$dev seront effacées !\"; read -p \"Continuer ? (o/N) \" confirm; if [[ \$confirm == [oOyY] ]]; then umount \${dev}* 2>/dev/null; mkfs.vfat -F 32 -n \$label \$dev; echo \"✅ Clé \$dev formatée avec label \$label\"; else echo \"❌ Opération annulée\"; fi"'
+usbformat() {
+    local dev label confirm
+    read -rp "Entrer le périphérique (ex: /dev/sdb) à formater : " dev
+    read -rp "Entrez un label pour la clé : " label
+    echo "⚠️ Toutes les données sur $dev seront effacées !"
+    read -rp "Continuer ? (o/N) " confirm
+    if [[ "$confirm" == [oOyY] ]]; then
+        sudo umount "${dev}"* 2>/dev/null
+        sudo mkfs.vfat -F 32 -n "$label" "$dev"
+        echo "✅ Clé $dev formatée avec label $label"
+    else
+        echo "❌ Opération annulée"
+    fi
+}
+
+flashISO () {
+    if [ "$#" -ne 2 ]; then
+        echo "Usage: flashISO fichier.iso /dev/sdX"
+        return 1
+    fi
+
+    sudo dd if="$1" of="$2" bs=4M status=progress conv=fsync
+}
+
+alias ssh="kitty +kitten ssh"
+
+# Python venv : crée ou active un venv dans le dossier courant
+pyvenv() {
+    if [ -d "venv" ]; then
+        source venv/bin/activate
+    else
+        python3 -m venv venv && source venv/bin/activate
+    fi
+}
