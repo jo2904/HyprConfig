@@ -167,6 +167,16 @@ systemctl enable --now tailscaled.service
 sudo pacman -S cmake meson cpio pkgconf git gc
 
 # ----------------------------------------------------------
+# 🔥  Firewall (ufw)
+# ----------------------------------------------------------
+sudo pacman -S --noconfirm --needed ufw
+sudo systemctl enable --now ufw.service
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw enable
+sudo ufw allow in on tailscale0
+
+# ----------------------------------------------------------
 # ✅  Finalisation
 # ----------------------------------------------------------
 dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP || true
