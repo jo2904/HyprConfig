@@ -149,7 +149,6 @@ yay -S --noconfirm --needed \
 # 9️⃣  Gestionnaire d’affichage (SDDM)
 # ----------------------------------------------------------
  sudo pacman -S --noconfirm --needed sddm qt6-svg qt6-virtualkeyboard qt6-multimedia-ffmpeg
- systemctl enable --now sddm.service
 
 # ----------------------------------------------------------
 # 🔟  Shell Zsh

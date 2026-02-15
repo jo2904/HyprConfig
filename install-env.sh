@@ -8,7 +8,7 @@ find . -type f -name 'index.html*' -delete
 
 bash ./packages.sh
 
-cp -r config/ "$TEMPDir/.config/"
+cp -r config/* "$TEMPDir/.config/"
 chmod +x "$TEMPDir/.config/scripts/"*.sh
 chmod +x "$TEMPDir/.config/waybar/launch.sh"
 
