@@ -39,7 +39,8 @@ rm -rf yay
  sudo pacman -S --noconfirm --needed git base-devel
 git clone https://aur.archlinux.org/yay.git
 cd yay
-makepkg -si --noconfirm
+makepkg -s --noconfirm
+sudo pacman -U --noconfirm *.pkg.tar.zst
 cd ..
 rm -rf yay
 
