@@ -6,7 +6,7 @@ TEMPDir="$HOME"
 set -eE
 find . -type f -name 'index.html*' -delete
 
-sudo bash ./packages.sh
+bash ./packages.sh
 
 cp -r config/ "$TEMPDir/.config/"
 chmod +x "$TEMPDir/.config/scripts/"*.sh

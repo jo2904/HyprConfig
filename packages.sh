@@ -36,7 +36,7 @@ sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 # 2️⃣  Installation de yay (AUR helper)
 # ----------------------------------------------------------
 rm -rf yay
- sudo pacman -S --noconfirm --needed git base-devel
+sudo pacman -S --noconfirm --needed git base-devel
 git clone https://aur.archlinux.org/yay.git
 cd yay
 makepkg -s --noconfirm
@@ -49,7 +49,7 @@ yay -S   pciutils  usbutils
 # ----------------------------------------------------------
 # 3️⃣  Environnement Hyprland + outils Wayland
 # ----------------------------------------------------------
- sudo pacman -S --noconfirm --needed \
+sudo pacman -S --noconfirm --needed \
   hyprland \
   uwsm \
   kitty \
