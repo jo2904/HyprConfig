@@ -105,7 +105,7 @@ PanelWindow {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: parent.top
             anchors.topMargin: root.anchorToButton ? 0 : Config.barHeight + 5
-            color: Config.backgroundTransparentColor
+            color: Config.popupBackgroundColor
             radius: Config.radiusLarge
             border.width: 1.0
             border.color: Config.surface2Color

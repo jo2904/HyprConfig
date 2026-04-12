@@ -1,9 +1,12 @@
 {
+  "opacity": {
+    "background": 0.32
+  },
   "theme": {
-    "name": "tokyonight"
+    "name": "light"
   },
   "bar": {
-    "screen": "DVI-I-2"
+    "screen": "HDMI-A-2"
   },
   "nightLight": {
     "enabled": false

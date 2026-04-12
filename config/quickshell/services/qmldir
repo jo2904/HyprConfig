@@ -18,3 +18,4 @@ singleton OsdService OsdService.qml
 singleton ClipboardService ClipboardService.qml
 singleton ThemeService ThemeService.qml
 singleton PowerProfileService PowerProfileService.qml
+singleton ScheduleService ScheduleService.qml

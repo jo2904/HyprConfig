@@ -11,16 +11,63 @@ alias unpack-dir='unp -u'
 
 # === Bluetooth aliases and helper functions ===
 
-# Activation / désactivation
+# --- Activation / Désactivation ---
 alias bt-on='rfkill unblock bluetooth && bluetoothctl power on'
 alias bt-off='bluetoothctl power off && rfkill block bluetooth'
+unalias bt-status 2>/dev/null
+bt-status() {
+  echo "=== Service ==="
+  systemctl is-active bluetooth
+  echo ""
+  echo "=== Adaptateur ==="
+  bluetoothctl list
+  echo ""
+  echo "=== Contrôleur ==="
+  bluetoothctl show
+}
 
-# Scan
+# --- Scan ---
+# Scan continu (stopper avec bt-scan-off)
 alias bt-scan='bluetoothctl scan on'
 alias bt-scan-off='bluetoothctl scan off'
-alias bt-devices='bluetoothctl devices'
 
-# Connexion / déconnexion
+# Scan pendant N secondes (défaut: 10s) puis liste les appareils trouvés
+bt-scan-list() {
+  local duration="${1:-10}"
+  echo "Scan Bluetooth pendant ${duration}s..."
+  {
+    echo "scan on"
+    sleep "$duration"
+    echo "scan off"
+    echo "devices"
+    echo "quit"
+  } | bluetoothctl
+}
+
+# --- Listage ---
+alias bt-list='bluetoothctl devices'
+alias bt-list-paired='bluetoothctl devices Paired'
+alias bt-list-connected='bluetoothctl devices Connected'
+
+# --- Appairage / Désappairage ---
+bt-pair() {
+  if [ -z "$1" ]; then
+    echo "Usage: bt-pair <MAC_ADDRESS>"
+    return 1
+  fi
+  bluetoothctl pair "$1"
+  bluetoothctl trust "$1"
+}
+
+bt-unpair() {
+  if [ -z "$1" ]; then
+    echo "Usage: bt-unpair <MAC_ADDRESS>"
+    return 1
+  fi
+  bluetoothctl remove "$1"
+}
+
+# --- Connexion / Déconnexion ---
 bt-connect() {
   if [ -z "$1" ]; then
     echo "Usage: bt-connect <MAC_ADDRESS>"
@@ -37,38 +84,37 @@ bt-disconnect() {
   bluetoothctl disconnect "$1"
 }
 
-# Appairage + confiance
-bt-pair() {
-  if [ -z "$1" ]; then
-    echo "Usage: bt-pair <MAC_ADDRESS>"
-    return 1
-  fi
-  bluetoothctl pair "$1"
-  bluetoothctl trust "$1"
-}
-
-# Statut du contrôleur
-alias bt-status='bluetoothctl show'
-
 # Aide rapide
 bt-help() {
   cat <<EOF
-🔵 Bluetooth Commandes Rapides :
+Bluetooth Commandes :
 
-  bt-on               → Active le Bluetooth
-  bt-off              → Désactive le Bluetooth
-  bt-status           → État du contrôleur
-  bt-scan             → Démarre le scan des appareils
-  bt-scan-off         → Arrête le scan
-  bt-devices          → Liste les appareils détectés
-  bt-pair <MAC>       → Appaire et fait confiance à un appareil
-  bt-connect <MAC>    → Connecte un appareil
-  bt-disconnect <MAC> → Déconnecte un appareil
+  Activation :
+    bt-on                    → Active le Bluetooth
+    bt-off                   → Désactive le Bluetooth
+    bt-status                → État du contrôleur
+
+  Scan :
+    bt-scan                  → Scan continu (stopper avec bt-scan-off)
+    bt-scan-off              → Arrête le scan
+    bt-scan-list [secondes]  → Scan pendant N secondes puis liste (défaut: 10s)
+
+  Listage :
+    bt-list                  → Tous les appareils connus
+    bt-list-paired           → Appareils appairés uniquement
+    bt-list-connected        → Appareils connectés uniquement
+
+  Appairage :
+    bt-pair <MAC>            → Appaire et fait confiance à un appareil
+    bt-unpair <MAC>          → Supprime un appareil
+
+  Connexion :
+    bt-connect <MAC>         → Connecte un appareil
+    bt-disconnect <MAC>      → Déconnecte un appareil
 
 Exemple :
   bt-on
-  bt-scan && sleep 5 && bt-scan-off
-  bt-devices
+  bt-scan-list 15
   bt-pair AA:BB:CC:DD:EE:FF
   bt-connect AA:BB:CC:DD:EE:FF
 
@@ -462,3 +508,5 @@ pyvenv() {
         python3 -m venv venv && source venv/bin/activate
     fi
 }
+
+alias cameraconfig='cameractrlsgtk4'

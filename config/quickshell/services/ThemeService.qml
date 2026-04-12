@@ -30,7 +30,9 @@ Singleton {
     readonly property string fastfetchLogo: Quickshell.env("HOME") + "/.config/fastfetch/arch.png"
     readonly property string wallpaperDir: Quickshell.env("HOME") + "/.local/wallpapers"
 
-    property string currentThemeName: getState("theme.name", "tokyonight")
+    // Empty string = not yet applied. Set explicitly in _applyThemeData to break
+    // the initial binding and prevent onStateLoaded loops after saves.
+    property string currentThemeName: ""
     property var availableThemes: []
 
     // Preview data: { "themeName": { name, palette: { background, accent, ... } } }
@@ -70,12 +72,17 @@ Singleton {
         listThemes();
     }
 
-    // Load theme when state is ready
+    // Load theme when state is ready.
+    // Guard: only apply if the saved name differs from what's already applied.
+    // This prevents the loop: setState → file write → onStateLoaded → setState → …
     Connections {
         target: StateService
         function onStateLoaded() {
-            const themeName = root.currentThemeName;
-            root.applyTheme(themeName);
+            const savedTheme = StateService.get("theme.name", "tokyonight");
+            if (savedTheme !== root.currentThemeName) {
+                root.currentThemeName = savedTheme;
+                root.applyTheme(savedTheme);
+            }
         }
     }
 
@@ -132,8 +139,8 @@ Singleton {
         // 7. Apply to Fastfetch logo
         _applyFastfetch(data.palette);
 
-        // 8. Apply theme wallpaper
-        _applyWallpaper(data.wallpaper);
+        // 8. Apply hyprpaper config
+        _applyHyprpaper(data.hyprpaperConf);
 
         console.log("[ThemeService] Theme applied:", data.name || themeName);
     }
@@ -180,13 +187,19 @@ Singleton {
         nvimProc.running = true;
     }
 
-    function _applyWallpaper(wallpaperFile) {
-        if (!wallpaperFile)
+    function _applyHyprpaper(sourceConf) {
+        if (!sourceConf)
             return;
 
-        const path = wallpaperDir + "/" + wallpaperFile;
-
-        wallpaperProc.command = ["bash", "-c", "[ -f '" + path + "' ] && swww img '" + path + "'" + " --transition-type grow --transition-duration 1 --transition-fps 60 --transition-step 90" + " || echo '[ThemeService] Wallpaper not found: " + wallpaperFile + "' >&2"];
+        const destConf = Quickshell.env("HOME") + "/.config/hypr/hyprpaper.conf";
+        wallpaperProc.command = ["bash", "-c",
+            "src='" + sourceConf + "'; " +
+            "dst='" + destConf + "'; " +
+            "if [ ! -f \"$src\" ]; then echo '[ThemeService] Hyprpaper conf not found: $src' >&2; exit 1; fi; " +
+            "cp \"$src\" \"$dst\" && " +
+            "pkill -x hyprpaper || true; " +
+            "sleep 0.3; nohup hyprpaper >/dev/null 2>&1 &"
+        ];
         wallpaperProc.running = true;
     }
 

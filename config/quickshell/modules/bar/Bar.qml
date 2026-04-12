@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 import Quickshell
 import Quickshell.Wayland
+import Quickshell.Hyprland
 import QtQuick
 import QtQuick.Layouts
 import qs.config
@@ -55,6 +56,35 @@ Scope {
 
             property bool enableAutoHide: StateService.get("bar.autoHide", false)
 
+            readonly property HyprlandMonitor hyprMonitor: Hyprland.monitorFor(modelData)
+            property bool hasFullscreenWindow: false
+
+            function updateFullscreenState() {
+                if (!hyprMonitor || !Hyprland.windows) {
+                    hasFullscreenWindow = false;
+                    return;
+                }
+                let found = false;
+                for (const win of Hyprland.windows.values) {
+                    if (win.fullscreen && win.monitor?.id === hyprMonitor.id) {
+                        found = true;
+                        break;
+                    }
+                }
+                hasFullscreenWindow = found;
+            }
+
+            Component.onCompleted: updateFullscreenState()
+
+            Connections {
+                target: Hyprland
+                function onRawEvent(event) {
+                    if (!event) return;
+                    if (["fullscreen", "activewindow", "workspace", "movewindow", "openwindow", "closewindow"].includes(event.name))
+                        updateFullscreenState();
+                }
+            }
+
             // NameSpace
             WlrLayershell.namespace: "qs_modules"
 
@@ -67,10 +97,10 @@ Scope {
             // WlrLayershell.layer: WlrLayer.Overlay
 
             // Set the exclusion mode
-            exclusionMode: enableAutoHide ? ExclusionMode.Ignore : ExclusionMode.Normal
+            exclusionMode: (enableAutoHide || hasFullscreenWindow) ? ExclusionMode.Ignore : ExclusionMode.Normal
 
             // Ensure reserved area size when in Normal mode
-            exclusiveZone: enableAutoHide ? 0 : height
+            exclusiveZone: (enableAutoHide || hasFullscreenWindow) ? 0 : height
 
             anchors {
                 top: true
@@ -78,10 +108,13 @@ Scope {
                 right: true
             }
 
-            // --- AUTOHIDE LOGIC ---
-            // If mouse is hovering, margin is 0 (show everything).
-            // Otherwise, margin is -29 (hide, leaving 1px at the top to catch the mouse).
+            // --- AUTOHIDE / FULLSCREEN LOGIC ---
+            // Fullscreen: hide bar completely (no sentinel pixel).
+            // AutoHide: leave 1px at top to catch mouse, unless a module is open.
             margins.top: {
+                if (hasFullscreenWindow)
+                    return -height;
+
                 if (WindowManagerService.anyModuleOpen || !enableAutoHide || mouseSensor.hovered)
                     return 0;
 

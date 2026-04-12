@@ -40,6 +40,11 @@ ShellRoot {
     // UI COMPONENTS - LAZY LOADING
     // =========================================================================
 
+    // Theme scheduler (light/dark based on time)
+    Connections {
+        target: ScheduleService
+    }
+
     // Bar - always active (main component)
     Bar {}
 

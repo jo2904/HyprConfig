@@ -7,6 +7,9 @@ set -e  # Stoppe le script si une commande échoue
 sudo rm /etc/resolv.conf
 sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
+sudo systemctl enable --now systemd-timesyncd.service
+sudo systemctl enable systemd-resolved.service
+
 # ----------------------------------------------------------
 # 1️⃣  Dépendances de base et outils essentiels
 # ----------------------------------------------------------

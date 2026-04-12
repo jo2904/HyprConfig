@@ -1,0 +1,31 @@
+{
+  "name": "Light",
+  "palette": {
+    "background": "#f2ece0",
+    "surface0": "#e8e0d2",
+    "surface1": "#d0c8b8",
+    "surface2": "#606060",
+    "surface3": "#404040",
+    "text": "#181410",
+    "textReverse": "#f2ece0",
+    "subtext": "#383430",
+    "subtextReverse": "#909090",
+    "accent": "#202020",
+    "success": "#3a6a30",
+    "warning": "#906820",
+    "error": "#802828",
+    "muted": "#a0a0a0",
+    "greyBlue": "#d8d4cc",
+    "blueDark": "#f5f0e8",
+    "popupBackground": "#ffffff"
+  },
+  "opacity": {
+    "background": 0.32
+  },
+  "hyprland": {
+    "activeBorder": "20202099",
+    "inactiveBorder": "60606044",
+    "shadowColor": "00000018"
+  },
+  "hyprpaperConf": "/home/jo/.config/hypr/hyprpaper-light.conf"
+}

@@ -16,6 +16,8 @@
     "error": "#f7768e",
     "muted": "#545c7e",
     "greyBlue": "#283457",
-    "blueDark": "#16161e"
-  }
+    "blueDark": "#16161e",
+    "popupBackground": "#1a1b26"
+  },
+  "hyprpaperConf": "/home/jo/.config/hypr/hyprpaper-night.conf"
 }

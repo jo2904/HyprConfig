@@ -197,7 +197,7 @@ elif [[ "$cpu_vendor" == "AuthenticAMD" ]]; then
 fi
 
 # --- Resume offset pour hibernation ---
-offset=$(filefrag -v "$SWAPFILE" | awk '$1=="0:" {gsub(/\./,""); print $4}')
+offset=$(btrfs inspect-internal map-swapfile -r "$SWAPFILE")
 : "${offset:=0}"
 resume_opts="resume=$SWAPFILE resume_offset=$offset"
 

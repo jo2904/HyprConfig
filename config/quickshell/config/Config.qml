@@ -37,6 +37,7 @@ Singleton {
     readonly property color mutedColor: ThemeService.color("muted", "#545c7e")
     readonly property color greyBlueColor: ThemeService.color("greyBlue", "#283457")
     readonly property color blueDarkColor: ThemeService.color("blueDark", "#16161e")
+    readonly property color popupBackgroundColor: ThemeService.color("popupBackground", "#1a1b26")
 
     // ========================================================================
     // WALLPAPER
