@@ -15,8 +15,14 @@ PanelWindow {
     property int anchorX: 0
     property int anchorY: 0
 
+    // Écran sur lequel ouvrir le menu (celui de la barre qui l'a déclenché).
+    // Sans binding explicite, PanelWindow retombe sur l'écran par défaut de
+    // quickshell, ce qui décale complètement anchorX/anchorY en multi-écran.
+    property var menuScreen: null
+
     // --- WINDOW CONFIGURATION ---
     color: "transparent"
+    screen: menuScreen ?? Quickshell.screens[0]
 
     // Size
     implicitWidth: Math.max(220, mainColumn.implicitWidth)

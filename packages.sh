@@ -87,13 +87,12 @@ yay -S --noconfirm --needed quickshell-git
 yay -S --noconfirm --needed hyprpolkitagent polkit
 systemctl --user enable --now hyprpolkitagent.service
 
-git clone https://github.com/Shanu-Kumawat/quickshell-overview ~/.config/quickshell/overview
+# quickshell-overview est versionné dans config/quickshell/overview et livré par le symlink
 
 # Bluetooth
  systemctl enable --now bluetooth.service
 
-# (Facultatif) plugin pour Yazi
-yay -S --noconfirm --needed yazi-rs-plugins-piper
+# Le plugin piper pour Yazi est versionné dans config/yazi/plugins/piper.yazi et livré par le symlink
 
 # ----------------------------------------------------------
 # 4️⃣  Composants complémentaires Hyprland
@@ -103,8 +102,7 @@ yay -S --noconfirm --needed \
   hypridle \
   hyprlock \
   playerctl \
-  xdg-desktop-portal-hyprland \
-  wlogout
+  xdg-desktop-portal-hyprland
 
 # ----------------------------------------------------------
 # 5️⃣  Audio & affichage

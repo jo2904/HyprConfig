@@ -1,7 +1,7 @@
 # ~/.zshrc - Zsh simple et efficace
 
 #### --- VARIABLES D'ENVIRONNEMENT --- ####
-export EDITOR=codium
+export EDITOR="$(command -v code >/dev/null 2>&1 && echo 'code --wait' || echo nano)"
 export GPG_TTY=$(tty)
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"

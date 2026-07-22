@@ -138,6 +138,7 @@ Singleton {
 
         if (device.state === BluetoothDeviceState.Connecting) {
             console.log("Please wait, device is already connecting...");
+            return;
         }
 
         // Try to mark as trusted before connecting.

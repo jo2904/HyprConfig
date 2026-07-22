@@ -181,6 +181,18 @@ ShellRoot {
         }
     }
 
+    IpcHandler {
+        target: "notifications"
+
+        function toggleDnd() {
+            NotificationService.toggleDnd();
+        }
+
+        function dndStatus(): string {
+            return NotificationService.dndEnabled ? "on" : "off";
+        }
+    }
+
     // Shortcut: Launcher
     GlobalShortcut {
         name: "app_launcher"

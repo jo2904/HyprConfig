@@ -8,6 +8,11 @@ RowLayout {
     id: root
     spacing: 5
 
+    // Écran sur lequel la barre (et donc les icônes du tray) est affichée.
+    // Sans ça, TrayMenu s'ouvre sur l'écran par défaut de quickshell, qui peut
+    // être différent de celui où l'utilisateur a cliqué en multi-écran.
+    property var trayScreen: null
+
     // Drawer state
     property bool isOpen: false
 
@@ -15,6 +20,7 @@ RowLayout {
     TrayMenu {
         id: sharedMenu
         visible: false
+        menuScreen: root.trayScreen
 
         onVisibleChanged: {
             if (visible)
@@ -99,15 +105,22 @@ RowLayout {
                                 sharedMenu.close();
                             } else if (mouse.button === Qt.RightButton) {
                                 if (trayDelegate.modelData.hasMenu) {
-                                    // 1. Gets the absolute position of the icon on screen
+                                    // 1. Gets the position of the icon in the compositor's global
+                                    // (multi-screen) coordinate space.
                                     var globalPos = trayDelegate.mapToGlobal(0, trayDelegate.height);
 
-                                    // 2. Configures the shared menu
-                                    sharedMenu.rootMenuHandle = trayDelegate.modelData.menu;
-                                    sharedMenu.anchorX = globalPos.x;
-                                    sharedMenu.anchorY = globalPos.y + 5;
+                                    // 2. Converts to coordinates local to the target screen, since
+                                    // the menu window's anchors/margins are relative to its own
+                                    // screen's origin, not the global desktop.
+                                    var screenX = root.trayScreen ? root.trayScreen.x : 0;
+                                    var screenY = root.trayScreen ? root.trayScreen.y : 0;
 
-                                    // 3. Opens the menu
+                                    // 3. Configures the shared menu
+                                    sharedMenu.rootMenuHandle = trayDelegate.modelData.menu;
+                                    sharedMenu.anchorX = globalPos.x - screenX;
+                                    sharedMenu.anchorY = globalPos.y - screenY + 5;
+
+                                    // 4. Opens the menu
                                     sharedMenu.open();
                                 }
                             }

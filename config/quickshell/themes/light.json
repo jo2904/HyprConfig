@@ -19,9 +19,6 @@
     "blueDark": "#f5f0e8",
     "popupBackground": "#ffffff"
   },
-  "opacity": {
-    "background": 0.32
-  },
   "hyprland": {
     "activeBorder": "20202099",
     "inactiveBorder": "60606044",

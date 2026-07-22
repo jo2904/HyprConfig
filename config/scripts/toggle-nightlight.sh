@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Default temperature values
-ON_TEMP=4000
-OFF_TEMP=6000
+# Aligné sur les profils de hyprsunset.conf (jour 6500K, nuit 3500K)
+ON_TEMP=3500
+OFF_TEMP=6500
 
 # Ensure hyprsunset is running
 if ! pgrep -x hyprsunset; then

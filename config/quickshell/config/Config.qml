@@ -47,8 +47,7 @@ Singleton {
     // ========================================================================
     // GEOMETRY & LAYOUT
     // ========================================================================
-    readonly property int barHeight: getState("bar.height", 32)
-    readonly property bool barAutoHide: getState("bar.autoHide", true)
+    readonly property int barHeight: getState("bar.height", 30)
 
     readonly property int radiusSmall: getState("geometry.radiusSmall", 5)
     readonly property int radius: getState("geometry.radius", 10)

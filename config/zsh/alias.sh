@@ -489,15 +489,6 @@ usbformat() {
     fi
 }
 
-flashISO () {
-    if [ "$#" -ne 2 ]; then
-        echo "Usage: flashISO fichier.iso /dev/sdX"
-        return 1
-    fi
-
-    sudo dd if="$1" of="$2" bs=4M status=progress conv=fsync
-}
-
 alias ssh="kitty +kitten ssh"
 
 # Python venv : crée ou active un venv dans le dossier courant
@@ -510,3 +501,37 @@ pyvenv() {
 }
 
 alias cameraconfig='cameractrlsgtk4'
+
+# === Hyprland / Quickshell ===
+
+# Recharge la config Hyprland (.lua) sans relancer la session
+alias hyprreload='hyprctl reload'
+
+# Relance proprement quickshell (utile après une modif QML)
+qsreload() {
+  pkill -x quickshell 2>/dev/null
+  sleep 1
+  setsid uwsm app -- quickshell >/dev/null 2>&1 &
+  disown
+  echo "✅ quickshell relancé"
+}
+
+# Ouvre la config Hyprland dans $EDITOR (le dossier avec code, sinon l'entrée principale)
+hyprconf() {
+  if [[ "$EDITOR" == code* ]]; then
+    code ~/.config/hypr
+  else
+    $EDITOR ~/.config/hypr/hyprland.lua
+  fi
+}
+
+# Suit en direct le dernier log quickshell
+hyprlogs() {
+  local log
+  log=$(ls -t /run/user/"$(id -u)"/quickshell/by-id/*/log.qslog 2>/dev/null | head -1)
+  if [ -z "$log" ]; then
+    echo "Aucun log quickshell trouvé (quickshell tourne-t-il ?)"
+    return 1
+  fi
+  tail -f "$log"
+}

@@ -9,7 +9,6 @@ Singleton {
     id: root
 
     readonly property string statePath: Quickshell.env("HOME") + "/.config/quickshell/state.json"
-    readonly property string defaultsPath: Quickshell.env("HOME") + "/.lyne-dots/.data/quickshell/defaults.json"
 
     property var state: ({})
     property bool isLoading: true
@@ -75,7 +74,7 @@ Singleton {
 
     Process {
         id: loadProc
-        command: ["bash", "-c", "cat '" + root.statePath + "' 2>/dev/null || cat '" + root.defaultsPath + "' 2>/dev/null || echo '{}'"]
+        command: ["bash", "-c", "cat '" + root.statePath + "' 2>/dev/null || echo '{}'"]
 
         property string buffer: ""
         stdout: SplitParser {

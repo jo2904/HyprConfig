@@ -8,8 +8,36 @@ import qs.services
 Scope {
     id: rootScope
 
+    // Écran cible (le même que la barre) : les notifs ne s'affichent que là,
+    // pas sur tous les écrans branchés.
+    property string targetScreen: StateService.get("bar.screen", "")
+
+    Connections {
+        target: StateService
+        function onStateLoaded() {
+            rootScope.targetScreen = StateService.get("bar.screen", "");
+        }
+    }
+
+    readonly property var filteredScreens: {
+        if (targetScreen === "") {
+            return Quickshell.screens;
+        }
+        let result = [];
+        for (let i = 0; i < Quickshell.screens.length; i++) {
+            if (Quickshell.screens[i].name === targetScreen) {
+                result.push(Quickshell.screens[i]);
+                break;
+            }
+        }
+        if (result.length === 0 && Quickshell.screens.length > 0) {
+            result.push(Quickshell.screens[0]);
+        }
+        return result;
+    }
+
     Variants {
-        model: Quickshell.screens
+        model: rootScope.filteredScreens
 
         delegate: PanelWindow {
             id: window
@@ -30,7 +58,7 @@ Scope {
             }
 
             margins {
-                top: 10
+                top: Config.barHeight + 10
                 right: 10
             }
 

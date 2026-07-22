@@ -136,10 +136,10 @@
       "headset-muted": "󰋐"
     },
 
-    "on-click": "~/.config/waybar/volume.sh output mute",
+    "on-click": "~/.config/scripts/volume.sh output mute",
 
-    "on-scroll-up": "~/.config/waybar/volume.sh output raise",
-    "on-scroll-down": "~/.config/waybar/volume.sh output lower",
+    "on-scroll-up": "~/.config/scripts/volume.sh output raise",
+    "on-scroll-down": "~/.config/scripts/volume.sh output lower",
 
     "tooltip-format": "Output Device: {desc}"
   },
@@ -154,10 +154,10 @@
     "format-source": "󰍬 {volume}%",
     "format-source-muted": "󰍭",
 
-    "on-click": "~/.config/waybar/volume.sh input mute",
+    "on-click": "~/.config/scripts/volume.sh input mute",
 
-    "on-scroll-up": "~/.config/waybar/volume.sh input raise",
-    "on-scroll-down": "~/.config/waybar/volume.sh input lower",
+    "on-scroll-up": "~/.config/scripts/volume.sh input raise",
+    "on-scroll-down": "~/.config/scripts/volume.sh input lower",
 
     "tooltip-format": "Input Device: {desc}"
   },

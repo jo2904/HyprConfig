@@ -52,6 +52,7 @@ Scope {
         model: root.filteredScreens
 
         PanelWindow {
+            id: barWindow
             required property var modelData
 
             property bool enableAutoHide: StateService.get("bar.autoHide", false)
@@ -167,7 +168,7 @@ Scope {
                     anchors.verticalCenter: parent.verticalCenter
                     spacing: root.gapIn
 
-                    TrayWidget {}
+                    TrayWidget { trayScreen: barWindow.modelData }
                     QuickSettingsButton {}
                     NotificationButton {}
                 }

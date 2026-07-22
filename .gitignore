@@ -11,6 +11,10 @@ credentials.json
 config/waybar/temp.json
 config/waybar/*.backup
 
+# Rofi : réécrit à chaque bascule de thème par toggle-theme.sh (le contenu
+# réel vient de -theme-str dans launch.sh, ce fichier n'a pas d'effet propre)
+config/rofi/colors.rasi
+
 # OS & editor
 .DS_Store
 *.swp
