@@ -236,7 +236,7 @@ Item {
         TapHandler {
             onTapped: {
                 if (root.specialWorkspaceName)
-                    Hyprland.dispatch("togglespecialworkspace " + root.specialWorkspaceName);
+                    Hyprland.dispatch(`hl.dsp.workspace.toggle_special("${root.specialWorkspaceName}")`);
             }
         }
         HoverHandler {
@@ -260,6 +260,18 @@ Item {
         Behavior on opacity {
             NumberAnimation {
                 duration: Config.animDuration
+            }
+        }
+
+        MouseArea {
+            id: scrollArea
+            anchors.fill: parent
+            acceptedButtons: Qt.NoButton
+            onWheel: wheel => {
+                if (wheel.angleDelta.y > 0)
+                    Hyprland.dispatch(`hl.dsp.focus({workspace = "e+1"})`);
+                else if (wheel.angleDelta.y < 0)
+                    Hyprland.dispatch(`hl.dsp.focus({workspace = "e-1"})`);
             }
         }
 
@@ -315,7 +327,7 @@ Item {
                     TapHandler {
                         onTapped: {
                             if (!workspaceItem.isActive)
-                                Hyprland.dispatch("workspace " + workspaceItem.workspaceId);
+                                Hyprland.dispatch(`hl.dsp.focus({workspace = ${workspaceItem.workspaceId}})`);
                         }
                     }
 

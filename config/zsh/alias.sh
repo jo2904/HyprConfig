@@ -535,3 +535,8 @@ hyprlogs() {
   fi
   tail -f "$log"
 }
+
+# Alias VPN CyberGhost (dossier synchronisé via Nextcloud, peut être absent)
+if [ -f "$HOME/Documents/programmation/cyberghost/cyberghost.zsh" ]; then
+  source "$HOME/Documents/programmation/cyberghost/cyberghost.zsh"
+fi

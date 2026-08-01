@@ -136,7 +136,8 @@ yay -S --noconfirm --needed \
   unp \
   btop \
   gazelle-tui \
-  filezilla
+  filezilla \
+  openlogi-bin
 # ----------------------------------------------------------
 # 8️⃣  Polices & apparence
 # ----------------------------------------------------------

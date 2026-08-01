@@ -154,6 +154,16 @@ echo "LANG=$LOCALE" > /etc/locale.conf
 locale-gen
 echo "KEYMAP=$KEYMAP" > /etc/vconsole.conf
 
+mkdir -p /etc/X11/xorg.conf.d
+cat > /etc/X11/xorg.conf.d/00-keyboard.conf <<EOF
+Section "InputClass"
+        Identifier "system-keyboard"
+        MatchIsKeyboard "on"
+        Option "XkbLayout" "$KEYMAP"
+        Option "XkbModel" "pc105"
+EndSection
+EOF
+
 echo "$HOSTNAME" > /etc/hostname
 cat >/etc/hosts <<EOF
 127.0.0.1 localhost

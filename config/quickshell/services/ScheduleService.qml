@@ -20,9 +20,13 @@ Singleton {
     readonly property int darkHour: 22
     readonly property int darkMinute: 0
 
-    // Apply the right theme on startup based on current time
+    // Apply the right theme on startup based on current time.
+    // Deferred via Qt.callLater: at this point TimeService's SystemClock
+    // singleton may not be fully constructed yet, which would make
+    // TimeService.hours/minutes read as 0 and force the dark theme regardless
+    // of the actual time of day.
     Component.onCompleted: {
-        applyScheduledTheme();
+        Qt.callLater(applyScheduledTheme);
     }
 
     // Re-check every time minutes change
