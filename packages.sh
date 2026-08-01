@@ -47,7 +47,7 @@ sudo pacman -U --noconfirm *.pkg.tar.zst
 cd ..
 rm -rf yay
 
-yay -S   pciutils  usbutils
+yay -S --noconfirm --needed pciutils usbutils
 
 # ----------------------------------------------------------
 # 3️⃣  Environnement Hyprland + outils Wayland
@@ -113,12 +113,19 @@ systemctl --user enable --now pipewire.service pipewire-pulse.service
 # ----------------------------------------------------------
 # 6️⃣  Pilotes graphiques (à adapter)
 # ----------------------------------------------------------
-read -p "Installer les pilotes NVIDIA ? (o/N) : " install_nvidia
+# install_nvidia / install_displaylink peuvent déjà être fournies (exportées
+# par install-env.sh, qui pose toutes les questions d'un coup au tout début) —
+# on ne redemande que si packages.sh est lancé seul.
+if [[ -z "${install_nvidia+x}" ]]; then
+    read -t 15 -rp "Installer les pilotes NVIDIA ? (o/N, 15s) : " install_nvidia || true
+fi
 if [[ "$install_nvidia" =~ ^[oO]$ ]]; then
     sudo pacman -S --noconfirm --needed nvidia nvidia-utils
 fi
 
-read -p "Installer DisplayLink ? (o/N) : " install_displaylink
+if [[ -z "${install_displaylink+x}" ]]; then
+    read -t 15 -rp "Installer DisplayLink ? (o/N, 15s) : " install_displaylink || true
+fi
 if [[ "$install_displaylink" =~ ^[oO]$ ]]; then
     yay -S --noconfirm --needed displaylink
 fi
@@ -166,7 +173,7 @@ systemctl enable --now tailscaled.service
 
 
 # hyprpm add
-sudo pacman -S cmake meson cpio pkgconf git gc
+sudo pacman -S --noconfirm --needed cmake meson cpio pkgconf git gc
 
 # ----------------------------------------------------------
 # 🔥  Firewall (ufw)

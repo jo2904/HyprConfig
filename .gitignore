@@ -15,6 +15,10 @@ config/waybar/*.backup
 # réel vient de -theme-str dans launch.sh, ce fichier n'a pas d'effet propre)
 config/rofi/colors.rasi
 
+# Hypridle : réécrit à chaque lancement par start-hypridle.sh selon la
+# présence d'une batterie (verrouillage 30min PC fixe / 3min PC portable)
+config/hypr/hypridle-lock-timeout.conf
+
 # OS & editor
 .DS_Store
 *.swp

@@ -13,6 +13,9 @@ git pull
 source "$REPO_DIR/link-config.sh"
 link_all_apps
 
+source "$REPO_DIR/config/scripts/link-zen-config.sh"
+link_zen_config
+
 chmod +x "$HOME/.config/scripts/"*.sh
 chmod +x "$HOME/.config/waybar/launch.sh"
 

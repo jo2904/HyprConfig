@@ -1,7 +1,7 @@
 -- hl.permission("/usr/(bin|local/bin)/hyprpm", "plugin", "allow")
 
 hl.on("hyprland.start", function()
-    hl.exec_cmd("uwsm app -- hypridle")
+    hl.exec_cmd("uwsm app -- ~/.config/scripts/start-hypridle.sh")
     hl.exec_cmd("uwsm app -- hyprsunset")
     hl.exec_cmd("uwsm app -- hyprpaper")
     -- mako reste configuré (config/mako/) mais n'est plus autostarté :

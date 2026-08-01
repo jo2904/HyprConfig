@@ -21,8 +21,8 @@ if [[ -z "$DISK" || ! -b "$DISK" ]]; then
   exit 1
 fi
 
-read -rp "⚠️ Le disque $DISK sera ENTIEREMENT effacé. Taper 'OUI' pour confirmer : " OK
-[[ "$OK" == "OUI" ]] || exit 1
+read -t 30 -rp "⚠️ Le disque $DISK sera ENTIEREMENT effacé. Taper 'OUI' pour confirmer (30s, sinon annulé) : " OK || true
+[[ "$OK" == "OUI" ]] || { echo "❌ Annulé (pas de confirmation 'OUI')."; exit 1; }
 
 # --- Nettoyage ---
 echo "[*] Préparation du disque..."
@@ -90,11 +90,11 @@ if ! $ok; then
   exit 1
 fi
 
-# Affichage clair
+# Affichage clair (déjà vérifié automatiquement ci-dessus, ceci est juste
+# pour le log — pas de pause : la confirmation 'OUI' du tout début est le
+# seul point d'arrêt de ce script, pour pouvoir le lancer et revenir plus
+# tard sans qu'il reste bloqué en plein milieu).
 lsblk -o NAME,PATH,SIZE,TYPE,FSTYPE "$KDISK"
-
-read -rp "Vérifie que $EFI (ou $EFI_DEV) et $CRYPT (ou $CRYPT_DEV) existent, puis ENTER pour continuer"
-
 
 # --- Chiffrement ---
 echo "[*] Chiffrement LUKS2..."
