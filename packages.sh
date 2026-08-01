@@ -4,11 +4,14 @@
 # ==========================================================
 set -e  # Stoppe le script si une commande échoue
 
-sudo rm /etc/resolv.conf
-sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
-
 sudo systemctl enable --now systemd-timesyncd.service
-sudo systemctl enable systemd-resolved.service
+# --now : resolved doit tourner et avoir reçu ses serveurs DNS (via NetworkManager,
+# voir install-arch.sh) avant qu'on pointe resolv.conf vers son stub, sinon la
+# résolution casse juste avant le pacman -Syu qui suit.
+sudo systemctl enable --now systemd-resolved.service
+
+sudo rm -f /etc/resolv.conf
+sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
 # ----------------------------------------------------------
 # 1️⃣  Dépendances de base et outils essentiels
@@ -163,12 +166,14 @@ yay -S --noconfirm --needed \
 # 🔟  Shell Zsh
 # ----------------------------------------------------------
 yay -S --noconfirm --needed zsh
-chsh -s "$(which zsh)"
+# sudo : sans ça, chsh redemande interactivement le mot de passe de
+# l'utilisateur courant via PAM — un prompt de plus sans timeout, en plein
+# milieu du script.
+sudo chsh -s "$(which zsh)" "$USER"
 
 # ----------------------------------------------------------
 # 1️⃣1️⃣  Services réseau
 # ----------------------------------------------------------
-sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 systemctl enable --now tailscaled.service
 
 

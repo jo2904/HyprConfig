@@ -1,10 +1,11 @@
 #!/bin/bash
 
 TEMPDir="$HOME"
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Exit immediately if a command exits with a non-zero status
 set -eE
-find . -type f -name 'index.html*' -delete
+find "$REPO_DIR" -type f -name 'index.html*' -delete
 
 # --- Toutes les questions d'un coup, avant de lancer quoi que ce soit de
 # long : après ça le script tourne sans interaction, on peut le lancer et
@@ -35,9 +36,8 @@ sudo -v
 SUDO_KEEPALIVE_PID=$!
 trap 'kill "$SUDO_KEEPALIVE_PID" 2>/dev/null' EXIT
 
-bash ./packages.sh
+bash "$REPO_DIR/packages.sh"
 
-REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$REPO_DIR/link-config.sh"
 link_all_apps
 
@@ -52,14 +52,14 @@ chmod +x "$TEMPDir/.config/waybar/launch.sh"
 
 mkdir -p "$TEMPDir/Images/screenshot"
 
-source ./defaultApp.sh
+source "$REPO_DIR/defaultApp.sh"
 
 mkdir -p ~/.cache/zsh
 ZSHRC_LINE="source $TEMPDir/.config/zsh/zshrc.sh"
 grep -qxF "$ZSHRC_LINE" ~/.zshrc 2>/dev/null || echo "$ZSHRC_LINE" >> ~/.zshrc
 
-sudo ./theme-sddm.sh
-sudo ./harden-pam.sh
+sudo "$REPO_DIR/theme-sddm.sh"
+sudo "$REPO_DIR/harden-pam.sh"
 
 mkdir -p "$TEMPDir/divers"
 

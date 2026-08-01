@@ -102,8 +102,11 @@ cryptsetup luksFormat --type luks2 "$CRYPT"
 cryptsetup open "$CRYPT" cryptroot
 
 # --- Systèmes de fichiers ---
+# -f sur mkfs.btrfs : sans ça, un re-run après un échec partiel sur le même
+# disque (signature déjà présente) peut refuser ou demander une confirmation
+# interactive — exactement le genre de prompt caché qu'on veut éviter.
 mkfs.fat -F32 "$EFI"
-mkfs.btrfs -L archsys /dev/mapper/cryptroot
+mkfs.btrfs -f -L archsys /dev/mapper/cryptroot
 
 # --- Subvolumes ---
 mount /dev/mapper/cryptroot /mnt
@@ -118,6 +121,11 @@ mount -o noatime,ssd,compress=zstd,space_cache=v2,subvol=@ /dev/mapper/cryptroot
 mkdir -p /mnt/{boot,home,.snapshots,swap}
 mount -o noatime,ssd,compress=zstd,space_cache=v2,subvol=@home /dev/mapper/cryptroot /mnt/home
 mount -o noatime,ssd,compress=zstd,space_cache=v2,subvol=@snapshots /dev/mapper/cryptroot /mnt/.snapshots
+# Pas de compress= ici : c'est le subvolume qui accueille le swapfile, il
+# doit rester en dehors de @ pour ne pas finir dans les snapshots (et donc
+# potentiellement déplacé par un rollback, ce qui casserait le resume_offset
+# calculé plus bas).
+mount -o noatime,ssd,space_cache=v2,subvol=@swap /dev/mapper/cryptroot /mnt/swap
 mount "$EFI" /mnt/boot
 
 # --- Installation du système de base ---
@@ -127,6 +135,13 @@ reflector --country France,Germany --protocol https --latest 10 --sort rate --sa
 
 pacstrap -K /mnt base base-devel linux linux-firmware \
   btrfs-progs zsh vim sudo git networkmanager
+
+# reflector n'a amélioré que le mirrorlist de l'ISO live (utilisé par
+# pacstrap ci-dessus) — pacstrap ne le propage pas dans /mnt, qui hérite
+# sinon du template quasi vide du paquet pacman-mirrorlist. Sans cette
+# copie, le premier `pacman -Syu` de packages.sh après reboot serait très
+# lent, voire échouerait faute de miroir actif.
+cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 
 genfstab -U /mnt >> /mnt/etc/fstab
 
@@ -178,14 +193,29 @@ mkinitcpio -P
 # --- Utilisateur ---
 useradd -m -G wheel -s $SHELL_BIN $USERNAME
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
+# Pas de mot de passe root : le compte reste verrouillé (pas de connexion
+# possible), tout passe par le sudo de $USERNAME via %wheel ci-dessus.
+passwd -l root
 systemctl enable NetworkManager
 
-# --- Swapfile Btrfs (RAM + 2 GiB) ---
+# --- DNS : systemd-resolved géré par NetworkManager ---
+# Sans ça, packages.sh bascule /etc/resolv.conf vers le stub de resolved
+# (/run/systemd/resolve/stub-resolv.conf) alors que resolved n'a jamais
+# tourné ni reçu de serveurs DNS — la résolution casse juste avant le
+# premier pacman -Syu du script.
+systemctl enable systemd-resolved.service
+mkdir -p /etc/NetworkManager/conf.d
+cat >/etc/NetworkManager/conf.d/dns.conf <<'EOF'
+[main]
+dns=systemd-resolved
+EOF
+
+# --- Swapfile Btrfs (RAM + 2 GiB) --- /swap est déjà le subvolume @swap,
+# monté avant pacstrap/genfstab (voir plus haut).
 mem_kb=$(grep MemTotal /proc/meminfo | awk '{print $2}')
 mem_mib=$(( (mem_kb + 1023) / 1024 ))
 swap_mib=$(( mem_mib + 2048 ))
 SWAPFILE=/swap/swapfile
-mkdir -p /swap
 btrfs filesystem mkswapfile --size "${swap_mib}M" "$SWAPFILE"
 chmod 600 "$SWAPFILE"
 mkswap "$SWAPFILE"
@@ -237,8 +267,8 @@ EOF
 CHROOT
 
 # Sortie du heredoc => ici tu as repris la main
-echo "[*] Définis un mot de passe root :"
-arch-chroot /mnt passwd
+# Pas de mot de passe root (compte verrouillé plus haut) — seul $USERNAME
+# en a besoin d'un, pour se connecter et utiliser sudo.
 echo "[*] Définis un mot de passe pour $USERNAME :"
 arch-chroot /mnt passwd "$USERNAME"
 

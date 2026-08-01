@@ -1,9 +1,10 @@
 #!/bin/bash
 
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 THEME_NAME="sddm-astronaut"
 INSTALL_DIR="/usr/share/sddm/themes"
 CONF_DIR="/etc/sddm.conf.d"
-LOCAL_PATH="$(pwd)/config/theme/$THEME_NAME"
+LOCAL_PATH="$REPO_DIR/config/theme/$THEME_NAME"
 echo "📦 Installation du thème SDDM : $THEME_NAME"
 
 # 1️⃣ Copie du thème
