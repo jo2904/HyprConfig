@@ -504,6 +504,9 @@ alias cameraconfig='cameractrlsgtk4'
 
 # === Hyprland / Quickshell ===
 
+# Va dans le dossier de config Hyprland
+alias cdHypr='cd ~/.config/hypr'
+
 # Recharge la config Hyprland (.lua) sans relancer la session
 alias hyprreload='hyprctl reload'
 

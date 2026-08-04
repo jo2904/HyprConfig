@@ -1,6 +1,11 @@
 -- hl.permission("/usr/(bin|local/bin)/hyprpm", "plugin", "allow")
 
 hl.on("hyprland.start", function()
+    -- Les deux écrans ont un workspace "default" (1 et 7) : au login, le
+    -- focus atterrit sur l'un ou l'autre selon l'ordre de détection des
+    -- moniteurs. On force explicitement le focus sur le workspace 1.
+    hl.dispatch(hl.dsp.focus({ workspace = 1 }))
+
     hl.exec_cmd("uwsm app -- ~/.config/scripts/start-hypridle.sh")
     hl.exec_cmd("uwsm app -- hyprsunset")
     hl.exec_cmd("uwsm app -- hyprpaper")

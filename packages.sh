@@ -140,6 +140,7 @@ yay -S --noconfirm --needed \
   zen-browser-bin \
   visual-studio-code-bin \
   nextcloud-client \
+  kdbusaddons \
   spotify \
   onlyoffice-bin \
   tailscale \
