@@ -17,7 +17,8 @@ if ! git config --global user.name >/dev/null 2>&1; then
 fi
 read -t 15 -rp "Installer les pilotes NVIDIA ? (o/N, 15s) : " install_nvidia || true
 read -t 15 -rp "Installer DisplayLink ? (o/N, 15s) : " install_displaylink || true
-export install_nvidia install_displaylink
+read -t 15 -rp "Installer aussi VS Code (visual-studio-code-bin) ? (o/N, 15s) : " install_vscode || true
+export install_nvidia install_displaylink install_vscode
 
 if [[ -n "${GIT_NAME:-}" && -n "${GIT_EMAIL:-}" ]]; then
     git config --global user.name "$GIT_NAME"

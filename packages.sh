@@ -138,7 +138,7 @@ fi
 # ----------------------------------------------------------
 yay -S --noconfirm --needed \
   zen-browser-bin \
-  visual-studio-code-bin \
+  vscodium-bin \
   nextcloud-client \
   kdbusaddons \
   spotify \
@@ -149,6 +149,13 @@ yay -S --noconfirm --needed \
   gazelle-tui \
   filezilla \
   openlogi-bin
+
+if [[ -z "${install_vscode+x}" ]]; then
+    read -t 15 -rp "Installer aussi VS Code (visual-studio-code-bin) ? (o/N, 15s) : " install_vscode || true
+fi
+if [[ "$install_vscode" =~ ^[oO]$ ]]; then
+    yay -S --noconfirm --needed visual-studio-code-bin
+fi
 # ----------------------------------------------------------
 # 8️⃣  Polices & apparence
 # ----------------------------------------------------------
