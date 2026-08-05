@@ -1,0 +1,8 @@
+{
+    "editor.formatOnSave": true,
+    "editor.mouseWheelZoom": true,
+    "git.confirmSync": false,
+    "claudeCode.preferredLocation": "panel",
+    "workbench.iconTheme": "material-icon-theme",
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+}

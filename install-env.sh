@@ -45,6 +45,10 @@ link_all_apps
 source "$REPO_DIR/config/scripts/link-zen-config.sh"
 link_zen_config
 
+source "$REPO_DIR/config/scripts/link-vscodium-config.sh"
+link_vscodium_config
+install_vscodium_extensions
+
 source "$REPO_DIR/config/scripts/setup-nextcloud.sh"
 setup_nextcloud
 

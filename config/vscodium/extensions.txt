@@ -1,0 +1,8 @@
+anthropic.claude-code
+esbenp.prettier-vscode
+ms-ceintl.vscode-language-pack-fr
+ms-python.debugpy
+ms-python.python
+ms-python.vscode-python-envs
+ms-vscode.cpptools-themes
+pkief.material-icon-theme
